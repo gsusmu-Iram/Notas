@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#14181F">
+<title>NOTAS</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+  :root{
+    --bg:#14181F;
+    --surface:#1B212B;
+    --surface-2:#222936;
+    --ink:#EDEFF2;
+    --ink-dim:#9AA3B2;
+    --amber:#E8A33D;
+    --line:#2A3240;
+    --mono: ui-monospace, "SF Mono", "Menlo", monospace;
+    --sans: -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); -webkit-font-smoothing:antialiased;
+    padding-bottom:24px;
+  }
+  header{
+    position:sticky; top:0; z-index:10;
+    background:rgba(20,24,31,0.94); backdrop-filter:blur(8px);
+    padding:14px 14px 10px; border-bottom:1px solid var(--line);
+  }
+  .brand{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .brand-left{ display:flex; align-items:baseline; gap:8px; }
+  .brand .badge{ width:8px; height:8px; border-radius:50%; background:var(--amber); box-shadow:0 0 8px var(--amber);}
+  .brand h1{ font-size:15px; font-weight:600; letter-spacing:0.04em; margin:0; font-family:var(--mono); color:var(--ink);}
+  .brand .updated{ font-size:10px; color:var(--ink-dim); font-family:var(--mono);}
+  .refresh-btn{
+    background:var(--surface); border:1px solid var(--line); color:var(--ink-dim);
+    font-size:11px; font-family:var(--mono); padding:6px 9px; border-radius:8px;
+    display:flex; align-items:center; gap:5px;
+  }
+  .refresh-btn:active{ background:var(--surface-2); }
+  .search{
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:10px; padding:10px 12px; margin-bottom:10px;
+  }
+  .search input{
+    background:none; border:none; outline:none; color:var(--ink);
+    font-size:14px; width:100%; font-family:var(--sans);
+  }
+  .search input::placeholder{ color:var(--ink-dim); }
+  .search svg{flex-shrink:0; opacity:0.5;}
+
+  .maintabs{ display:flex; gap:6px; margin-bottom:8px; }
+  .maintab{
+    flex:1; text-align:center; font-family:var(--mono); font-size:12px; padding:8px 10px;
+    border-radius:8px; border:1px solid var(--line); color:var(--ink-dim); background:var(--surface);
+  }
+  .maintab.active{ background:var(--amber); color:#1A140A; border-color:var(--amber); font-weight:600;}
+
+  .subtabs{ display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;}
+  .subtabs::-webkit-scrollbar{ display:none; }
+  .subtab{
+    flex-shrink:0; font-family:var(--mono); font-size:11px; padding:5px 10px;
+    border-radius:7px; border:1px solid var(--line); color:var(--ink-dim); background:var(--surface);
+    white-space:nowrap;
+  }
+  .subtab.active{ background:var(--surface-2); color:var(--amber); border-color:var(--amber); }
+
+  main{ padding:12px 14px 0; }
+  .grid{ columns: 2 180px; column-gap:10px; }
+
+  .notas-list{ display:flex; flex-direction:column; gap:10px; }
+  .note-row{ display:flex; align-items:stretch; gap:0; touch-action:pan-y; }
+  .note-row.dragging{ opacity:0.85; }
+  .note-row .card{ flex:1; margin-bottom:0; }
+  .drag-handle{
+    flex-shrink:0; width:34px; display:flex; align-items:center; justify-content:center;
+    color:var(--ink-dim); font-size:18px; letter-spacing:-2px; cursor:grab; touch-action:none;
+  }
+  .drag-handle:active{ cursor:grabbing; color:var(--amber); }
+  .note-row-placeholder{
+    border:1.5px dashed var(--line); border-radius:12px; background:rgba(255,255,255,0.02);
+  }
+
+  .card{
+    break-inside:avoid; margin-bottom:10px; border-radius:12px;
+    border:1px solid var(--line); padding:12px; position:relative; overflow:hidden;
+    background:var(--surface);
+  }
+  .card::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:#4A5468;}
+  .card .head{ display:flex; justify-content:space-between; align-items:flex-start; gap:6px; margin-bottom:6px; flex-wrap:wrap;}
+  .card .ent{ font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.03em; }
+  .card .code{ font-family:var(--mono); font-size:10px; color:var(--ink-dim); }
+  .card .title{ font-size:13.5px; font-weight:600; margin:0 0 4px; color:var(--ink);}
+  .card{ cursor:pointer; }
+  .card .body{
+    font-size:12.5px; line-height:1.5; color:#C7CDD8; word-break:break-word;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .card .meta{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; flex-wrap:wrap; gap:4px;}
+  .card .date{ font-size:10px; color:var(--ink-dim); font-family:var(--mono); }
+  .card .chips{ display:flex; gap:4px; flex-wrap:wrap; }
+  .card .chip{
+    font-size:9.5px; font-family:var(--mono); padding:2px 6px; border-radius:5px;
+    background:rgba(255,255,255,0.06); color:var(--ink-dim);
+  }
+
+  /* entity colors */
+  .ce-bbva::before{background:#3E7BFA;} .ce-bbva .ent{color:#3E7BFA;}
+  .ce-cajamar::before{background:#6EC46B;} .ce-cajamar .ent{color:#6EC46B;}
+  .ce-caixa::before{background:#E86A6A;} .ce-caixa .ent{color:#E86A6A;}
+  .ce-orange::before{background:var(--amber);} .ce-orange .ent{color:var(--amber);}
+  .ce-abanca::before{background:#B07EEA;} .ce-abanca .ent{color:#B07EEA;}
+  .ce-repsol::before{background:#7FD1C9;} .ce-repsol .ent{color:#7FD1C9;}
+  .ce-sprinter::before{background:#F27EB0;} .ce-sprinter .ent{color:#F27EB0;}
+  .ce-dia::before{background:#F2C14E;} .ce-dia .ent{color:#F2C14E;}
+  .ce-march::before{background:#8FA8E8;} .ce-march .ent{color:#8FA8E8;}
+  .ce-jd::before{background:#9BD97D;} .ce-jd .ent{color:#9BD97D;}
+
+  .empty{
+    margin:60px 20px; text-align:center; color:var(--ink-dim);
+  }
+  .empty .icon{ font-size:36px; margin-bottom:10px; }
+  .empty h2{ font-size:15px; color:var(--ink); font-family:var(--mono); margin:0 0 6px;}
+  .empty p{ font-size:12.5px; line-height:1.5; margin:0 0 18px; }
+  .bigbtn{
+    background:var(--amber); color:#1A140A; border:none; font-weight:700;
+    font-family:var(--mono); font-size:13px; padding:12px 20px; border-radius:10px;
+  }
+  .no-results{ text-align:center; color:var(--ink-dim); font-size:12.5px; font-family:var(--mono); padding:40px 20px;}
+
+  #fileInput{ display:none; }
+
+  .fullview{
+    position:fixed; inset:0; background:var(--bg); z-index:50;
+    display:flex; flex-direction:column; animation:fv-in 0.16s ease-out;
+  }
+  @keyframes fv-in{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:translateY(0);} }
+  .fv-header{
+    display:flex; align-items:center; gap:12px; padding:14px 14px 12px;
+    border-bottom:1px solid var(--line); flex-shrink:0;
+  }
+  .fv-back{
+    background:var(--surface); border:1px solid var(--line); color:var(--ink);
+    width:34px; height:34px; border-radius:9px; font-size:16px; flex-shrink:0;
+  }
+  .fv-back:active{ background:var(--surface-2); }
+  .fv-headtext{ min-width:0; }
+  .fv-ent{ font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.03em; }
+  .fv-sub{ font-size:10.5px; color:var(--ink-dim); font-family:var(--mono); margin-top:1px;}
+  .fv-scroll{ flex:1; overflow-y:auto; padding:18px 18px 40px; }
+  .fv-title{ font-size:19px; font-weight:700; margin:0 0 14px; line-height:1.35; }
+  .fv-body{ font-size:15px; line-height:1.7; color:#DCE0E8; white-space:pre-wrap; word-break:break-word; }
+  .fv-meta{ display:flex; flex-wrap:wrap; gap:6px; margin-top:22px; padding-top:14px; border-top:1px solid var(--line); }
+  .fv-chip{
+    font-size:11px; font-family:var(--mono); padding:4px 9px; border-radius:6px;
+    background:rgba(255,255,255,0.06); color:var(--ink-dim);
+  }
+  .fv-date{ font-size:11px; color:var(--ink-dim); font-family:var(--mono); margin-top:22px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-left">
+      <div class="badge"></div>
+      <div>
+        <h1>NOTAS</h1>
+        <div class="updated" id="updatedLabel">sin datos cargados</div>
+      </div>
+    </div>
+    <button class="refresh-btn" onclick="document.getElementById('fileInput').click()">⟳ Excel</button>
+  </div>
+  <div class="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AA3B2" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input id="searchInput" placeholder="Buscar cliente, código, texto...">
+  </div>
+  <div class="maintabs">
+    <div class="maintab active" data-tab="notas" onclick="setMainTab('notas')">📌 Notas</div>
+    <div class="maintab" data-tab="info" onclick="setMainTab('info')">ℹ️ Información</div>
+  </div>
+  <div class="subtabs" id="subtabs" style="display:none;"></div>
+</header>
+
+<main>
+  <div id="content"></div>
+</main>
+
+<input type="file" id="fileInput" accept=".xlsx,.xls">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* ===================== ESTADO ===================== */
+var DATA = { notas: [], info: [], updated: null };
+var STATE = { mainTab: 'notas', subEntidad: 'Todo', query: '' };
+
+var STORAGE_KEY = 'notasapp_v1_data';
+var ORDER_KEY = 'notasapp_v1_order_notas';
+
+var ENTITY_MAP = {
+  'BBVA':'ce-bbva',
+  'CAJAMAR':'ce-cajamar',
+  'CAIXA RURAL TORRENT':'ce-caixa','CAIXA':'ce-caixa','CAIXA TORRENT':'ce-caixa',
+  'ORANGE':'ce-orange',
+  'ABANCA':'ce-abanca',
+  'REPSOL':'ce-repsol','CAMPSA':'ce-repsol',
+  'SPRINTER':'ce-sprinter',
+  'DIA':'ce-dia',
+  'BANCA MARCH':'ce-march',
+  'JD':'ce-jd'
+};
+
+/* ===================== UTILIDADES DE TEXTO ===================== */
+function limpiarTexto(raw){
+  if(raw === null || raw === undefined) return '';
+  var s = String(raw);
+  // artefactos de exportación tipo "_x000d__x000d_..."
+  s = s.replace(/(_x000d_)+/gi, '\n');
+  // literal backslash-n como texto
+  s = s.replace(/\\n/g, '\n');
+  // saltos de bloque HTML
+  s = s.replace(/<\/(p|div|li|h[1-6])>/gi, '\n');
+  s = s.replace(/<br\s*\/?>/gi, '\n');
+  s = s.replace(/<li[^>]*>/gi, '• ');
+  // quitar el resto de etiquetas HTML
+  s = s.replace(/<[^>]+>/g, '');
+  // entidades HTML comunes
+  s = s.replace(/&nbsp;/gi, ' ')
+       .replace(/&amp;/gi, '&')
+       .replace(/&lt;/gi, '<')
+       .replace(/&gt;/gi, '>')
+       .replace(/&quot;/gi, '"')
+       .replace(/&#39;/gi, "'");
+  // normalizar líneas
+  s = s.split('\n').map(function(l){ return l.replace(/\s+$/,''); }).join('\n');
+  s = s.replace(/\n{3,}/g, '\n\n');
+  s = s.replace(/[ \t]{2,}/g, ' ');
+  return s.trim();
+}
+
+function excelFecha(val){
+  if(val === null || val === undefined || val === '') return '';
+  if(typeof val === 'number'){
+    try{
+      var d = XLSX.SSF.parse_date_code(val);
+      if(d && d.y) return pad2(d.d) + '/' + pad2(d.m) + '/' + d.y;
+    }catch(e){}
+  }
+  return String(val).trim();
+}
+function pad2(n){ n = String(n); return n.length < 2 ? '0'+n : n; }
+
+function fechaOrden(str){
+  if(!str) return 0;
+  var m = String(str).match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if(m){
+    var d = +m[1], mo = +m[2], y = +m[3];
+    if(y < 100) y += 2000;
+    return new Date(y, mo-1, d).getTime();
+  }
+  return 0;
+}
+
+function splitEtiquetas(str){
+  if(!str) return [];
+  return String(str).split(/[\s,]+/).map(function(s){
+    return s.replace(/^#/, '').trim();
+  }).filter(Boolean);
+}
+
+function entityClass(entidad){
+  if(!entidad) return '';
+  var key = String(entidad).trim().toUpperCase();
+  return ENTITY_MAP[key] || '';
+}
+
+function escapeHtml(str){
+  var d = document.createElement('div');
+  d.textContent = str == null ? '' : String(str);
+  return d.innerHTML;
+}
+
+/* ===================== LECTURA DE EXCEL ===================== */
+var HEADER_SETS = {
+  notas: ['ID','TITULO','TEXTO','FECHA','ETIQUETAS'],
+  info:  ['ID','FECHA','ENTIDAD','CODIGO','POBLACION','SISTEMA','TIPO_DATO','INFORMACION','ETIQUETAS']
+};
+
+function encontrarFilaCabecera(rows, headerSet){
+  var maxRow = Math.min(rows.length, 10);
+  var best = -1, bestScore = 0;
+  for(var i=0; i<maxRow; i++){
+    var row = rows[i] || [];
+    var score = 0;
+    for(var j=0; j<row.length; j++){
+      var v = row[j];
+      if(v === null || v === undefined) continue;
+      var vv = String(v).trim().toUpperCase();
+      if(headerSet.indexOf(vv) !== -1) score++;
+    }
+    if(score > bestScore){ bestScore = score; best = i; }
+  }
+  return bestScore >= 2 ? best : -1;
+}
+
+function filasAObjetos(rows, headerRowIdx){
+  var headerRow = rows[headerRowIdx];
+  var headers = headerRow.map(function(h){ return h === null || h === undefined ? '' : String(h).trim().toUpperCase(); });
+  var out = [];
+  for(var i = headerRowIdx + 1; i < rows.length; i++){
+    var row = rows[i];
+    if(!row || row.length === 0) continue;
+    var obj = {};
+    var hasAny = false;
+    for(var j=0; j<headers.length; j++){
+      if(!headers[j]) continue;
+      var val = row[j];
+      if(val !== null && val !== undefined && String(val).trim() !== '') hasAny = true;
+      obj[headers[j]] = val;
+    }
+    if(hasAny) out.push(obj);
+  }
+  return out;
+}
+
+function procesarLibro(workbook){
+  var notas = [];
+  var info = [];
+
+  if(workbook.Sheets['Notas']){
+    var rowsN = XLSX.utils.sheet_to_json(workbook.Sheets['Notas'], {header:1, raw:true, defval:null});
+    var hIdxN = encontrarFilaCabecera(rowsN, HEADER_SETS.notas);
+    if(hIdxN !== -1){
+      var objsN = filasAObjetos(rowsN, hIdxN);
+      notas = objsN.filter(function(o){ return o.ID; }).map(function(o){
+        return {
+          id: o.ID,
+          titulo: limpiarTexto(o.TITULO || ''),
+          texto: limpiarTexto(o.TEXTO || ''),
+          fecha: excelFecha(o.FECHA),
+          etiquetas: splitEtiquetas(o.ETIQUETAS)
+        };
+      });
+    }
+  }
+
+  if(workbook.Sheets['Información'] || workbook.Sheets['Informacion']){
+    var sheetInfo = workbook.Sheets['Información'] || workbook.Sheets['Informacion'];
+    var rowsI = XLSX.utils.sheet_to_json(sheetInfo, {header:1, raw:true, defval:null});
+    var hIdxI = encontrarFilaCabecera(rowsI, HEADER_SETS.info);
+    if(hIdxI !== -1){
+      var objsI = filasAObjetos(rowsI, hIdxI);
+      info = objsI.filter(function(o){ return o.ID; }).map(function(o){
+        return {
+          id: o.ID,
+          fecha: excelFecha(o.FECHA),
+          entidad: (o.ENTIDAD || '').toString().trim(),
+          codigo: (o.CODIGO === null || o.CODIGO === undefined) ? '' : String(o.CODIGO).trim(),
+          poblacion: (o.POBLACION || '').toString().trim(),
+          sistema: (o.SISTEMA || '').toString().trim(),
+          tipoDato: limpiarTexto(o.TIPO_DATO || ''),
+          informacion: limpiarTexto(o.INFORMACION || ''),
+          etiquetas: splitEtiquetas(o.ETIQUETAS)
+        };
+      });
+    }
+  }
+
+  notas.sort(function(a,b){ return fechaOrden(b.fecha) - fechaOrden(a.fecha); });
+  info.sort(function(a,b){ return fechaOrden(b.fecha) - fechaOrden(a.fecha); });
+
+  return { notas: notas, info: info, updated: new Date().toISOString() };
+}
+
+/* ===================== CARGA / GUARDADO ===================== */
+document.getElementById('fileInput').addEventListener('change', function(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      var arr = new Uint8Array(ev.target.result);
+      var wb = XLSX.read(arr, {type:'array', cellDates:false});
+      var parsed = procesarLibro(wb);
+      DATA = parsed;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      STATE.subEntidad = 'Todo';
+      render();
+    }catch(err){
+      alert('No se pudo leer el Excel: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  e.target.value = '';
+});
+
+function cargarDesdeStorage(){
+  try{
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      DATA = JSON.parse(raw);
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+/* ===================== RENDER ===================== */
+function setMainTab(tab){
+  STATE.mainTab = tab;
+  STATE.subEntidad = 'Todo';
+  document.querySelectorAll('.maintab').forEach(function(el){
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  render();
+}
+
+document.getElementById('searchInput').addEventListener('input', function(e){
+  STATE.query = e.target.value.trim().toLowerCase();
+  render();
+});
+
+function formatUpdated(iso){
+  if(!iso) return 'sin datos cargados';
+  var d = new Date(iso);
+  return 'Excel actualizado ' + pad2(d.getDate()) + '/' + pad2(d.getMonth()+1) + '/' + d.getFullYear() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+
+function renderSubtabs(){
+  var subtabsEl = document.getElementById('subtabs');
+  if(STATE.mainTab !== 'info'){
+    subtabsEl.style.display = 'none';
+    subtabsEl.innerHTML = '';
+    return;
+  }
+  var entidades = {};
+  DATA.info.forEach(function(o){
+    var e = (o.entidad || '').trim();
+    if(e) entidades[e] = true;
+  });
+  var lista = Object.keys(entidades).sort();
+  if(lista.length === 0){
+    subtabsEl.style.display = 'none';
+    return;
+  }
+  subtabsEl.style.display = 'flex';
+  var html = '<div class="subtab' + (STATE.subEntidad==='Todo'?' active':'') + '" onclick="setSubTab(\'Todo\')">Todo</div>';
+  lista.forEach(function(e){
+    html += '<div class="subtab' + (STATE.subEntidad===e?' active':'') + '" onclick="setSubTab(' + JSON.stringify(e).replace(/"/g,'&quot;') + ')">' + escapeHtml(e) + '</div>';
+  });
+  subtabsEl.innerHTML = html;
+}
+
+function setSubTab(e){
+  STATE.subEntidad = e;
+  render();
+}
+
+function matchQuery(fields){
+  if(!STATE.query) return true;
+  var q = STATE.query;
+  return fields.some(function(f){
+    return f && String(f).toLowerCase().indexOf(q) !== -1;
+  });
+}
+
+function cardHtml(kind, item){
+  var cls = kind === 'info' ? entityClass(item.entidad) : '';
+  var titleLine, headLine, bodyText, dateStr, chips;
+
+  if(kind === 'notas'){
+    titleLine = item.titulo || '(sin título)';
+    headLine = '';
+    bodyText = item.texto;
+    dateStr = item.fecha;
+    chips = item.etiquetas;
+  } else {
+    var headParts = [];
+    if(item.entidad) headParts.push(item.entidad.toUpperCase());
+    titleLine = [item.poblacion, item.tipoDato].filter(Boolean).join(' · ') || item.tipoDato || '(sin título)';
+    headLine = headParts.join(' ');
+    bodyText = item.informacion;
+    dateStr = item.fecha;
+    chips = item.etiquetas;
+    if(item.sistema) chips = [item.sistema].concat(chips);
+  }
+
+  var bodyEsc = escapeHtml(bodyText || '');
+  var cid = kind + '-' + item.id;
+
+  var head = '';
+  if(kind === 'info'){
+    head = '<div class="head">' +
+      (item.entidad ? '<span class="ent">' + escapeHtml(item.entidad.toUpperCase()) + '</span>' : '<span class="ent" style="color:var(--ink-dim)">SIN ENTIDAD</span>') +
+      (item.codigo ? '<span class="code">' + escapeHtml(item.codigo) + '</span>' : '') +
+      '</div>';
+  }
+
+  var out = '<div class="card ' + cls + '" data-cid="' + cid + '" onclick="openFullView(' + JSON.stringify(cid).replace(/"/g,'&quot;') + ')">';
+  out += head;
+  out += '<p class="title">' + escapeHtml(titleLine) + '</p>';
+  out += '<div class="body" id="body-' + cid + '">' + bodyEsc + '</div>';
+  out += '<div class="meta"><span class="date">' + escapeHtml(dateStr || '') + '</span>';
+  if(chips && chips.length){
+    out += '<span class="chips">' + chips.slice(0,3).map(function(c){ return '<span class="chip">#' + escapeHtml(c) + '</span>'; }).join('') + '</span>';
+  }
+  out += '</div></div>';
+  return out;
+}
+
+var CARD_STORE = {};
+
+function openFullView(cid){
+  var item = CARD_STORE[cid];
+  if(!item) return;
+
+  var chipsHtml = (item.chips && item.chips.length)
+    ? '<div class="fv-meta">' + item.chips.map(function(c){ return '<span class="fv-chip">#' + escapeHtml(c) + '</span>'; }).join('') + '</div>'
+    : '';
+
+  var headTextHtml = item.ent
+    ? '<div class="fv-headtext"><div class="fv-ent">' + escapeHtml(item.ent) + '</div>' + (item.sub ? '<div class="fv-sub">' + escapeHtml(item.sub) + '</div>' : '') + '</div>'
+    : (item.sub ? '<div class="fv-headtext"><div class="fv-sub">' + escapeHtml(item.sub) + '</div></div>' : '');
+
+  var fv = document.createElement('div');
+  fv.className = 'fullview';
+  fv.innerHTML =
+    '<div class="fv-header"><button class="fv-back" onclick="this.closest(\'.fullview\').remove()">←</button>' + headTextHtml + '</div>' +
+    '<div class="fv-scroll">' +
+      '<h2 class="fv-title">' + escapeHtml(item.title) + '</h2>' +
+      '<div class="fv-body">' + escapeHtml(item.body) + '</div>' +
+      (item.date ? '<div class="fv-date">' + escapeHtml(item.date) + '</div>' : '') +
+      chipsHtml +
+    '</div>';
+  document.body.appendChild(fv);
+}
+
+/* ===================== ORDEN MANUAL DE NOTAS ===================== */
+function loadOrder(){
+  try{
+    var raw = localStorage.getItem(ORDER_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function saveOrder(ids){
+  try{ localStorage.setItem(ORDER_KEY, JSON.stringify(ids)); }catch(e){}
+}
+function ordenarNotasManual(list){
+  var order = loadOrder();
+  if(!order.length) return list.slice();
+  var byId = {};
+  list.forEach(function(n){ byId[n.id] = n; });
+  var ordered = [];
+  order.forEach(function(id){
+    if(byId[id]){ ordered.push(byId[id]); delete byId[id]; }
+  });
+  // notas nuevas que no estaban en el orden guardado -> arriba del todo
+  var nuevas = list.filter(function(n){ return byId[n.id]; });
+  return nuevas.concat(ordered);
+}
+
+function initDragReorder(){
+  var handles = document.querySelectorAll('.drag-handle');
+  handles.forEach(function(handle){
+    handle.addEventListener('pointerdown', onDragStart);
+  });
+}
+
+function onDragStart(e){
+  e.preventDefault();
+  var row = e.target.closest('.note-row');
+  if(!row) return;
+  var list = row.parentElement;
+  var rect = row.getBoundingClientRect();
+  var startY = e.clientY;
+  var startTop = rect.top;
+
+  var placeholder = document.createElement('div');
+  placeholder.className = 'note-row-placeholder';
+  placeholder.style.height = rect.height + 'px';
+  list.insertBefore(placeholder, row.nextSibling);
+
+  row.style.position = 'fixed';
+  row.style.top = rect.top + 'px';
+  row.style.left = rect.left + 'px';
+  row.style.width = rect.width + 'px';
+  row.style.zIndex = 200;
+  row.classList.add('dragging');
+  document.body.style.userSelect = 'none';
+
+  function onMove(ev){
+    var y = ev.clientY;
+    row.style.top = (startTop + (y - startY)) + 'px';
+    var rowRect = row.getBoundingClientRect();
+    var rowCenter = rowRect.top + rowRect.height / 2;
+    var siblings = Array.prototype.slice.call(list.children).filter(function(el){ return el !== row && el !== placeholder; });
+    var target = null;
+    for(var i=0; i<siblings.length; i++){
+      var sr = siblings[i].getBoundingClientRect();
+      if(rowCenter < sr.top + sr.height / 2){ target = siblings[i]; break; }
+    }
+    if(target){
+      if(target !== placeholder.nextSibling) list.insertBefore(placeholder, target);
+    } else {
+      if(list.lastElementChild !== placeholder) list.appendChild(placeholder);
+    }
+  }
+
+  function onUp(){
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    row.style.position = '';
+    row.style.top = '';
+    row.style.left = '';
+    row.style.width = '';
+    row.style.zIndex = '';
+    row.classList.remove('dragging');
+    document.body.style.userSelect = '';
+    list.insertBefore(row, placeholder);
+    placeholder.remove();
+
+    var newOrder = Array.prototype.slice.call(list.children).map(function(el){ return el.dataset.id; });
+    saveOrder(newOrder);
+  }
+
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+}
+
+function render(){
+  document.getElementById('updatedLabel').textContent = formatUpdated(DATA.updated);
+  renderSubtabs();
+
+  var contentEl = document.getElementById('content');
+  var totalItems = (DATA.notas.length + DATA.info.length);
+
+  if(totalItems === 0){
+    contentEl.innerHTML =
+      '<div class="empty">' +
+      '<div class="icon">🗒️</div>' +
+      '<h2>Sin datos cargados</h2>' +
+      '<p>Sube el Excel de PycLibreta (hojas "Notas" e "Información")<br>para ver aquí tus notas y fichas técnicas.</p>' +
+      '<button class="bigbtn" onclick="document.getElementById(\'fileInput\').click()">Subir Excel</button>' +
+      '</div>';
+    return;
+  }
+
+  CARD_STORE = {};
+  var items, kind;
+  var reorderActive = false;
+  if(STATE.mainTab === 'notas'){
+    kind = 'notas';
+    items = DATA.notas.filter(function(n){
+      return matchQuery([n.titulo, n.texto, n.etiquetas.join(' ')]);
+    });
+    if(!STATE.query){
+      items = ordenarNotasManual(items);
+      reorderActive = items.length > 1;
+    }
+  } else {
+    kind = 'info';
+    items = DATA.info.filter(function(n){
+      if(STATE.subEntidad !== 'Todo' && (n.entidad || '') !== STATE.subEntidad) return false;
+      return matchQuery([n.entidad, n.codigo, n.poblacion, n.sistema, n.tipoDato, n.informacion, n.etiquetas.join(' ')]);
+    });
+  }
+
+  if(items.length === 0){
+    contentEl.innerHTML = '<div class="no-results">Sin resultados para esta búsqueda.</div>';
+    return;
+  }
+
+  var html;
+  if(kind === 'notas'){
+    html = '<div class="notas-list">';
+  } else {
+    html = '<div class="grid">';
+  }
+  items.forEach(function(item){
+    var cid = kind + '-' + item.id;
+    if(kind === 'notas'){
+      CARD_STORE[cid] = {
+        title: item.titulo || '(sin título)',
+        body: item.texto,
+        ent: '', sub: '',
+        date: item.fecha,
+        chips: item.etiquetas
+      };
+    } else {
+      var chips = item.sistema ? [item.sistema].concat(item.etiquetas) : item.etiquetas;
+      CARD_STORE[cid] = {
+        title: [item.poblacion, item.tipoDato].filter(Boolean).join(' · ') || item.tipoDato || '(sin título)',
+        body: item.informacion,
+        ent: item.entidad ? item.entidad.toUpperCase() : '',
+        sub: item.codigo || '',
+        date: item.fecha,
+        chips: chips
+      };
+    }
+    if(kind === 'notas'){
+      html += '<div class="note-row" data-id="' + escapeHtml(String(item.id)) + '">';
+      if(reorderActive) html += '<div class="drag-handle">⠿</div>';
+      html += cardHtml(kind, item);
+      html += '</div>';
+    } else {
+      html += cardHtml(kind, item);
+    }
+  });
+  html += '</div>';
+  contentEl.innerHTML = html;
+
+  if(kind === 'notas' && reorderActive) initDragReorder();
+}
+
+/* ===================== INIT ===================== */
+cargarDesdeStorage();
+render();
+</script>
+</body>
+</html>
