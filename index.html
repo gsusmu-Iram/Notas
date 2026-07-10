@@ -116,9 +116,9 @@
   .ce-caixa::before{background:#E86A6A;} .ce-caixa .ent{color:#E86A6A;}
   .ce-orange::before{background:var(--amber);} .ce-orange .ent{color:var(--amber);}
   .ce-abanca::before{background:#B07EEA;} .ce-abanca .ent{color:#B07EEA;}
-  .ce-repsol::before{background:#7FD1C9;} .ce-repsol .ent{color:#7FD1C9;}
+  .ce-repsol::before{background:#FF7A1A;} .ce-repsol .ent{color:#FF7A1A;}
   .ce-sprinter::before{background:#F27EB0;} .ce-sprinter .ent{color:#F27EB0;}
-  .ce-dia::before{background:#F2C14E;} .ce-dia .ent{color:#F2C14E;}
+  .ce-dia::before{background:#E23744;} .ce-dia .ent{color:#E23744;}
   .ce-march::before{background:#8FA8E8;} .ce-march .ent{color:#8FA8E8;}
   .ce-jd::before{background:#9BD97D;} .ce-jd .ent{color:#9BD97D;}
 
@@ -201,7 +201,7 @@ var DATA = { notas: [], info: [], updated: null };
 var STATE = { mainTab: 'notas', subEntidad: 'Todo', query: '' };
 
 var STORAGE_KEY = 'notasapp_v1_data';
-var ORDER_KEY = 'notasapp_v1_order_notas';
+var ORDER_KEYS = { notas: 'notasapp_v1_order_notas', info: 'notasapp_v1_order_info' };
 
 var ENTITY_MAP = {
   'BBVA':'ce-bbva',
@@ -541,18 +541,18 @@ function openFullView(cid){
   document.body.appendChild(fv);
 }
 
-/* ===================== ORDEN MANUAL DE NOTAS ===================== */
-function loadOrder(){
+/* ===================== ORDEN MANUAL ===================== */
+function loadOrder(kind){
   try{
-    var raw = localStorage.getItem(ORDER_KEY);
+    var raw = localStorage.getItem(ORDER_KEYS[kind]);
     return raw ? JSON.parse(raw) : [];
   }catch(e){ return []; }
 }
-function saveOrder(ids){
-  try{ localStorage.setItem(ORDER_KEY, JSON.stringify(ids)); }catch(e){}
+function saveOrder(kind, ids){
+  try{ localStorage.setItem(ORDER_KEYS[kind], JSON.stringify(ids)); }catch(e){}
 }
-function ordenarNotasManual(list){
-  var order = loadOrder();
+function ordenarManual(kind, list){
+  var order = loadOrder(kind);
   if(!order.length) return list.slice();
   var byId = {};
   list.forEach(function(n){ byId[n.id] = n; });
@@ -560,19 +560,19 @@ function ordenarNotasManual(list){
   order.forEach(function(id){
     if(byId[id]){ ordered.push(byId[id]); delete byId[id]; }
   });
-  // notas nuevas que no estaban en el orden guardado -> arriba del todo
-  var nuevas = list.filter(function(n){ return byId[n.id]; });
-  return nuevas.concat(ordered);
+  // elementos nuevos que no estaban en el orden guardado -> arriba del todo
+  var nuevos = list.filter(function(n){ return byId[n.id]; });
+  return nuevos.concat(ordered);
 }
 
-function initDragReorder(){
+function initDragReorder(kind){
   var handles = document.querySelectorAll('.drag-handle');
   handles.forEach(function(handle){
-    handle.addEventListener('pointerdown', onDragStart);
+    handle.addEventListener('pointerdown', function(e){ onDragStart(e, kind); });
   });
 }
 
-function onDragStart(e){
+function onDragStart(e, kind){
   e.preventDefault();
   var row = e.target.closest('.note-row');
   if(!row) return;
@@ -626,7 +626,7 @@ function onDragStart(e){
     placeholder.remove();
 
     var newOrder = Array.prototype.slice.call(list.children).map(function(el){ return el.dataset.id; });
-    saveOrder(newOrder);
+    saveOrder(kind, newOrder);
   }
 
   document.addEventListener('pointermove', onMove);
@@ -660,7 +660,7 @@ function render(){
       return matchQuery([n.titulo, n.texto, n.etiquetas.join(' ')]);
     });
     if(!STATE.query){
-      items = ordenarNotasManual(items);
+      items = ordenarManual('notas', items);
       reorderActive = items.length > 1;
     }
   } else {
@@ -669,6 +669,10 @@ function render(){
       if(STATE.subEntidad !== 'Todo' && (n.entidad || '') !== STATE.subEntidad) return false;
       return matchQuery([n.entidad, n.codigo, n.poblacion, n.sistema, n.tipoDato, n.informacion, n.etiquetas.join(' ')]);
     });
+    // orden manual solo editable en "Todo" sin búsqueda; si hay filtro, se respeta
+    // el orden guardado pero sin tirador (no editable sobre un subconjunto)
+    items = ordenarManual('info', items);
+    reorderActive = (STATE.subEntidad === 'Todo' && !STATE.query && items.length > 1);
   }
 
   if(items.length === 0){
@@ -677,11 +681,7 @@ function render(){
   }
 
   var html;
-  if(kind === 'notas'){
-    html = '<div class="notas-list">';
-  } else {
-    html = '<div class="grid">';
-  }
+  html = '<div class="notas-list">';
   items.forEach(function(item){
     var cid = kind + '-' + item.id;
     if(kind === 'notas'){
@@ -703,19 +703,15 @@ function render(){
         chips: chips
       };
     }
-    if(kind === 'notas'){
-      html += '<div class="note-row" data-id="' + escapeHtml(String(item.id)) + '">';
-      if(reorderActive) html += '<div class="drag-handle">⠿</div>';
-      html += cardHtml(kind, item);
-      html += '</div>';
-    } else {
-      html += cardHtml(kind, item);
-    }
+    html += '<div class="note-row" data-id="' + escapeHtml(String(item.id)) + '">';
+    if(reorderActive) html += '<div class="drag-handle">⠿</div>';
+    html += cardHtml(kind, item);
+    html += '</div>';
   });
   html += '</div>';
   contentEl.innerHTML = html;
 
-  if(kind === 'notas' && reorderActive) initDragReorder();
+  if(reorderActive) initDragReorder(kind);
 }
 
 /* ===================== INIT ===================== */
