@@ -72,7 +72,6 @@
   .subtab.active{ background:var(--surface-2); color:var(--amber); border-color:var(--amber); }
 
   main{ padding:12px 14px 0; }
-  .grid{ columns: 2 180px; column-gap:10px; }
 
   .notas-list{ display:flex; flex-direction:column; gap:10px; }
   .note-row{ display:flex; align-items:stretch; gap:0; touch-action:pan-y; }
@@ -90,14 +89,13 @@
   .card{
     break-inside:avoid; margin-bottom:10px; border-radius:12px;
     border:1px solid var(--line); padding:12px; position:relative; overflow:hidden;
-    background:var(--surface);
+    background:var(--surface); cursor:pointer;
   }
   .card::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:#4A5468;}
   .card .head{ display:flex; justify-content:space-between; align-items:flex-start; gap:6px; margin-bottom:6px; flex-wrap:wrap;}
   .card .ent{ font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.03em; }
   .card .code{ font-family:var(--mono); font-size:10px; color:var(--ink-dim); }
   .card .title{ font-size:13.5px; font-weight:600; margin:0 0 4px; color:var(--ink);}
-  .card{ cursor:pointer; }
   .card .body{
     font-size:12.5px; line-height:1.5; color:#C7CDD8; word-break:break-word;
     display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
@@ -109,6 +107,7 @@
     font-size:9.5px; font-family:var(--mono); padding:2px 6px; border-radius:5px;
     background:rgba(255,255,255,0.06); color:var(--ink-dim);
   }
+  .local-badge{ font-size:10.5px; color:var(--amber); font-family:var(--mono); margin-left:5px; }
 
   /* entity colors */
   .ce-bbva::before{background:#3E7BFA;} .ce-bbva .ent{color:#3E7BFA;}
@@ -134,7 +133,15 @@
   }
   .no-results{ text-align:center; color:var(--ink-dim); font-size:12.5px; font-family:var(--mono); padding:40px 20px;}
 
-  #fileInput{ display:none; }
+  #fileInputLibreta, #fileInputPropio{ display:none; }
+
+  .fab{
+    position:fixed; right:18px; bottom:22px; width:54px; height:54px; border-radius:50%;
+    background:var(--amber); color:#1A140A; font-size:28px; font-weight:700; border:none;
+    box-shadow:0 6px 16px rgba(0,0,0,0.45); z-index:30; display:flex; align-items:center; justify-content:center;
+    line-height:1;
+  }
+  .fab:active{ transform:scale(0.95); }
 
   .fullview{
     position:fixed; inset:0; background:var(--bg); z-index:50;
@@ -150,6 +157,10 @@
     width:34px; height:34px; border-radius:9px; font-size:16px; flex-shrink:0;
   }
   .fv-back:active{ background:var(--surface-2); }
+  .fv-pencil{
+    margin-left:auto; background:var(--surface); border:1px solid var(--line); color:var(--ink);
+    width:34px; height:34px; border-radius:9px; font-size:15px; flex-shrink:0;
+  }
   .fv-headtext{ min-width:0; }
   .fv-ent{ font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.03em; }
   .fv-sub{ font-size:10.5px; color:var(--ink-dim); font-family:var(--mono); margin-top:1px;}
@@ -162,6 +173,45 @@
     background:rgba(255,255,255,0.06); color:var(--ink-dim);
   }
   .fv-date{ font-size:11px; color:var(--ink-dim); font-family:var(--mono); margin-top:22px; }
+
+  .editor-field{ margin-bottom:16px; }
+  .editor-label{ font-size:10.5px; font-family:var(--mono); color:var(--ink-dim); margin-bottom:6px; display:block; }
+  .editor-input, .editor-textarea{
+    width:100%; background:var(--surface); border:1px solid var(--line); border-radius:9px;
+    padding:11px 12px; color:var(--ink); font-size:14.5px; font-family:var(--sans); outline:none;
+  }
+  .editor-input:focus, .editor-textarea:focus{ border-color:var(--amber); }
+  .editor-textarea{ min-height:130px; resize:vertical; line-height:1.5; }
+  .editor-actions{ display:flex; gap:10px; margin-top:6px; }
+  .editor-save{
+    flex:1; background:var(--amber); color:#1A140A; border:none; font-weight:700;
+    font-family:var(--mono); font-size:13.5px; padding:12px; border-radius:10px;
+  }
+  .editor-cancel-btn{
+    background:var(--surface); border:1px solid var(--line); color:var(--ink-dim);
+    font-family:var(--mono); font-size:13.5px; padding:12px 16px; border-radius:10px;
+  }
+
+  .excel-modal-bg{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:60;
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .excel-modal{
+    background:var(--surface); border:1px solid var(--line); border-radius:16px 16px 0 0;
+    width:100%; max-width:480px; padding:18px; padding-bottom:28px;
+  }
+  .excel-modal h3{ font-size:13px; font-family:var(--mono); color:var(--ink-dim); margin:0 0 14px; text-align:center; letter-spacing:0.05em;}
+  .excel-option{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+    background:var(--surface-2); border:1px solid var(--line); border-radius:10px;
+    padding:13px 14px; margin-bottom:9px; color:var(--ink); font-size:13.5px;
+  }
+  .excel-option .eo-icon{ font-size:18px; flex-shrink:0; }
+  .excel-option .eo-text small{ display:block; color:var(--ink-dim); font-size:10.5px; font-family:var(--mono); margin-top:2px; font-weight:400; }
+  .excel-cancel{
+    width:100%; text-align:center; background:none; border:none; color:var(--ink-dim);
+    font-family:var(--mono); font-size:12.5px; padding:10px; margin-top:4px;
+  }
 </style>
 </head>
 <body>
@@ -175,7 +225,7 @@
         <div class="updated" id="updatedLabel">sin datos cargados</div>
       </div>
     </div>
-    <button class="refresh-btn" onclick="document.getElementById('fileInput').click()">⟳ Excel</button>
+    <button class="refresh-btn" onclick="openExcelModal()">⟳ Excel</button>
   </div>
   <div class="search">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AA3B2" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -192,15 +242,23 @@
   <div id="content"></div>
 </main>
 
-<input type="file" id="fileInput" accept=".xlsx,.xls">
+<button class="fab" onclick="openEditorForCurrentTab()">+</button>
+
+<input type="file" id="fileInputLibreta" accept=".xlsx,.xls">
+<input type="file" id="fileInputPropio" accept=".xlsx,.xls">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 /* ===================== ESTADO ===================== */
-var DATA = { notas: [], info: [], updated: null };
+// Dos capas independientes:
+// - LIBRETA: lo importado desde el Excel maestro de PycLibreta (base de solo lectura)
+// - NOTAS_PROPIO: lo creado/editado aquí mismo, por id. Siempre gana sobre LIBRETA al fusionar.
+var LIBRETA = { notas: [], info: [], updated: null };
+var NOTAS_PROPIO = { notas: {}, info: {}, updated: null };
 var STATE = { mainTab: 'notas', subEntidad: 'Todo', query: '' };
 
-var STORAGE_KEY = 'notasapp_v1_data';
+var LIBRETA_KEY = 'notasapp_v1_libreta';
+var NOTASPROPIO_KEY = 'notasapp_v1_propio';
 var ORDER_KEYS = { notas: 'notasapp_v1_order_notas', info: 'notasapp_v1_order_info' };
 
 var ENTITY_MAP = {
@@ -220,24 +278,18 @@ var ENTITY_MAP = {
 function limpiarTexto(raw){
   if(raw === null || raw === undefined) return '';
   var s = String(raw);
-  // artefactos de exportación tipo "_x000d__x000d_..."
   s = s.replace(/(_x000d_)+/gi, '\n');
-  // literal backslash-n como texto
   s = s.replace(/\\n/g, '\n');
-  // saltos de bloque HTML
   s = s.replace(/<\/(p|div|li|h[1-6])>/gi, '\n');
   s = s.replace(/<br\s*\/?>/gi, '\n');
   s = s.replace(/<li[^>]*>/gi, '• ');
-  // quitar el resto de etiquetas HTML
   s = s.replace(/<[^>]+>/g, '');
-  // entidades HTML comunes
   s = s.replace(/&nbsp;/gi, ' ')
        .replace(/&amp;/gi, '&')
        .replace(/&lt;/gi, '<')
        .replace(/&gt;/gi, '>')
        .replace(/&quot;/gi, '"')
        .replace(/&#39;/gi, "'");
-  // normalizar líneas
   s = s.split('\n').map(function(l){ return l.replace(/\s+$/,''); }).join('\n');
   s = s.replace(/\n{3,}/g, '\n\n');
   s = s.replace(/[ \t]{2,}/g, ' ');
@@ -255,6 +307,11 @@ function excelFecha(val){
   return String(val).trim();
 }
 function pad2(n){ n = String(n); return n.length < 2 ? '0'+n : n; }
+
+function todayStr(){
+  var d = new Date();
+  return pad2(d.getDate()) + '/' + pad2(d.getMonth()+1) + '/' + d.getFullYear();
+}
 
 function fechaOrden(str){
   if(!str) return 0;
@@ -284,6 +341,10 @@ function escapeHtml(str){
   var d = document.createElement('div');
   d.textContent = str == null ? '' : String(str);
   return d.innerHTML;
+}
+
+function generarId(kind){
+  return (kind === 'notas' ? 'N_' : 'IT_') + Date.now();
 }
 
 /* ===================== LECTURA DE EXCEL ===================== */
@@ -340,7 +401,7 @@ function procesarLibro(workbook){
       var objsN = filasAObjetos(rowsN, hIdxN);
       notas = objsN.filter(function(o){ return o.ID; }).map(function(o){
         return {
-          id: o.ID,
+          id: String(o.ID),
           titulo: limpiarTexto(o.TITULO || ''),
           texto: limpiarTexto(o.TEXTO || ''),
           fecha: excelFecha(o.FECHA),
@@ -358,7 +419,7 @@ function procesarLibro(workbook){
       var objsI = filasAObjetos(rowsI, hIdxI);
       info = objsI.filter(function(o){ return o.ID; }).map(function(o){
         return {
-          id: o.ID,
+          id: String(o.ID),
           fecha: excelFecha(o.FECHA),
           entidad: (o.ENTIDAD || '').toString().trim(),
           codigo: (o.CODIGO === null || o.CODIGO === undefined) ? '' : String(o.CODIGO).trim(),
@@ -378,8 +439,50 @@ function procesarLibro(workbook){
   return { notas: notas, info: info, updated: new Date().toISOString() };
 }
 
+function procesarLibroPropio(workbook){
+  var parsed = procesarLibro(workbook);
+  var notasMap = {};
+  parsed.notas.forEach(function(n){ notasMap[n.id] = n; });
+  var infoMap = {};
+  parsed.info.forEach(function(n){ infoMap[n.id] = n; });
+  return { notas: notasMap, info: infoMap, updated: parsed.updated };
+}
+
+/* ===================== FUSIÓN DE CAPAS ===================== */
+function getMerged(kind){
+  var base = (kind === 'notas' ? LIBRETA.notas : LIBRETA.info) || [];
+  var propio = (kind === 'notas' ? NOTAS_PROPIO.notas : NOTAS_PROPIO.info) || {};
+  var map = {};
+  base.forEach(function(it){ map[it.id] = it; });
+  Object.keys(propio).forEach(function(id){ map[id] = propio[id]; });
+  var list = Object.keys(map).map(function(id){ return map[id]; });
+  list.sort(function(a,b){ return fechaOrden(b.fecha) - fechaOrden(a.fecha); });
+  return list;
+}
+function esLocal(kind, id){
+  var propio = (kind === 'notas' ? NOTAS_PROPIO.notas : NOTAS_PROPIO.info) || {};
+  return Object.prototype.hasOwnProperty.call(propio, id);
+}
+
 /* ===================== CARGA / GUARDADO ===================== */
-document.getElementById('fileInput').addEventListener('change', function(e){
+function saveLibreta(){
+  try{ localStorage.setItem(LIBRETA_KEY, JSON.stringify(LIBRETA)); }catch(e){}
+}
+function saveNotasPropio(){
+  try{ localStorage.setItem(NOTASPROPIO_KEY, JSON.stringify(NOTAS_PROPIO)); }catch(e){}
+}
+function cargarDesdeStorage(){
+  try{
+    var raw = localStorage.getItem(LIBRETA_KEY);
+    if(raw) LIBRETA = JSON.parse(raw);
+  }catch(e){}
+  try{
+    var raw2 = localStorage.getItem(NOTASPROPIO_KEY);
+    if(raw2) NOTAS_PROPIO = JSON.parse(raw2);
+  }catch(e){}
+}
+
+document.getElementById('fileInputLibreta').addEventListener('change', function(e){
   var file = e.target.files[0];
   if(!file) return;
   var reader = new FileReader();
@@ -387,10 +490,10 @@ document.getElementById('fileInput').addEventListener('change', function(e){
     try{
       var arr = new Uint8Array(ev.target.result);
       var wb = XLSX.read(arr, {type:'array', cellDates:false});
-      var parsed = procesarLibro(wb);
-      DATA = parsed;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      LIBRETA = procesarLibro(wb);
+      saveLibreta();
       STATE.subEntidad = 'Todo';
+      closeExcelModal();
       render();
     }catch(err){
       alert('No se pudo leer el Excel: ' + err.message);
@@ -400,145 +503,74 @@ document.getElementById('fileInput').addEventListener('change', function(e){
   e.target.value = '';
 });
 
-function cargarDesdeStorage(){
-  try{
-    var raw = localStorage.getItem(STORAGE_KEY);
-    if(raw){
-      DATA = JSON.parse(raw);
-      return true;
+document.getElementById('fileInputPropio').addEventListener('change', function(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      var arr = new Uint8Array(ev.target.result);
+      var wb = XLSX.read(arr, {type:'array', cellDates:false});
+      NOTAS_PROPIO = procesarLibroPropio(wb);
+      saveNotasPropio();
+      STATE.subEntidad = 'Todo';
+      closeExcelModal();
+      render();
+    }catch(err){
+      alert('No se pudo leer el Excel: ' + err.message);
     }
-  }catch(e){}
-  return false;
-}
-
-/* ===================== RENDER ===================== */
-function setMainTab(tab){
-  STATE.mainTab = tab;
-  STATE.subEntidad = 'Todo';
-  document.querySelectorAll('.maintab').forEach(function(el){
-    el.classList.toggle('active', el.dataset.tab === tab);
-  });
-  render();
-}
-
-document.getElementById('searchInput').addEventListener('input', function(e){
-  STATE.query = e.target.value.trim().toLowerCase();
-  render();
+  };
+  reader.readAsArrayBuffer(file);
+  e.target.value = '';
 });
 
-function formatUpdated(iso){
-  if(!iso) return 'sin datos cargados';
-  var d = new Date(iso);
-  return 'Excel actualizado ' + pad2(d.getDate()) + '/' + pad2(d.getMonth()+1) + '/' + d.getFullYear() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+function todayStamp(){
+  var d = new Date();
+  return d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate());
 }
 
-function renderSubtabs(){
-  var subtabsEl = document.getElementById('subtabs');
-  if(STATE.mainTab !== 'info'){
-    subtabsEl.style.display = 'none';
-    subtabsEl.innerHTML = '';
+function exportarExcelPropio(){
+  var notasArr = Object.keys(NOTAS_PROPIO.notas || {}).map(function(id){ return NOTAS_PROPIO.notas[id]; });
+  var infoArr = Object.keys(NOTAS_PROPIO.info || {}).map(function(id){ return NOTAS_PROPIO.info[id]; });
+  if(notasArr.length === 0 && infoArr.length === 0){
+    alert('Todavía no tienes notas propias creadas o editadas.');
     return;
   }
-  var entidades = {};
-  DATA.info.forEach(function(o){
-    var e = (o.entidad || '').trim();
-    if(e) entidades[e] = true;
+  var wsNotasData = [['ID','TITULO','TEXTO','FECHA','ETIQUETAS']];
+  notasArr.forEach(function(n){
+    wsNotasData.push([n.id, n.titulo || '', n.texto || '', n.fecha || '', (n.etiquetas||[]).map(function(t){ return '#'+t; }).join(' ')]);
   });
-  var lista = Object.keys(entidades).sort();
-  if(lista.length === 0){
-    subtabsEl.style.display = 'none';
-    return;
-  }
-  subtabsEl.style.display = 'flex';
-  var html = '<div class="subtab' + (STATE.subEntidad==='Todo'?' active':'') + '" onclick="setSubTab(\'Todo\')">Todo</div>';
-  lista.forEach(function(e){
-    html += '<div class="subtab' + (STATE.subEntidad===e?' active':'') + '" onclick="setSubTab(' + JSON.stringify(e).replace(/"/g,'&quot;') + ')">' + escapeHtml(e) + '</div>';
+  var wsInfoData = [['ID','FECHA','ENTIDAD','CODIGO','POBLACION','SISTEMA','TIPO_DATO','INFORMACION','ETIQUETAS']];
+  infoArr.forEach(function(it){
+    wsInfoData.push([it.id, it.fecha || '', it.entidad || '', it.codigo || '', it.poblacion || '', it.sistema || '', it.tipoDato || '', it.informacion || '', (it.etiquetas||[]).map(function(t){ return '#'+t; }).join(' ')]);
   });
-  subtabsEl.innerHTML = html;
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsNotasData), 'Notas');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsInfoData), 'Información');
+  XLSX.writeFile(wb, 'notas_propio_' + todayStamp() + '.xlsx');
+  closeExcelModal();
 }
 
-function setSubTab(e){
-  STATE.subEntidad = e;
-  render();
-}
-
-function matchQuery(fields){
-  if(!STATE.query) return true;
-  var q = STATE.query;
-  return fields.some(function(f){
-    return f && String(f).toLowerCase().indexOf(q) !== -1;
-  });
-}
-
-function cardHtml(kind, item){
-  var cls = kind === 'info' ? entityClass(item.entidad) : '';
-  var titleLine, headLine, bodyText, dateStr, chips;
-
-  if(kind === 'notas'){
-    titleLine = item.titulo || '(sin título)';
-    headLine = '';
-    bodyText = item.texto;
-    dateStr = item.fecha;
-    chips = item.etiquetas;
-  } else {
-    var headParts = [];
-    if(item.entidad) headParts.push(item.entidad.toUpperCase());
-    titleLine = [item.poblacion, item.tipoDato].filter(Boolean).join(' · ') || item.tipoDato || '(sin título)';
-    headLine = headParts.join(' ');
-    bodyText = item.informacion;
-    dateStr = item.fecha;
-    chips = item.etiquetas;
-    if(item.sistema) chips = [item.sistema].concat(chips);
-  }
-
-  var bodyEsc = escapeHtml(bodyText || '');
-  var cid = kind + '-' + item.id;
-
-  var head = '';
-  if(kind === 'info'){
-    head = '<div class="head">' +
-      (item.entidad ? '<span class="ent">' + escapeHtml(item.entidad.toUpperCase()) + '</span>' : '<span class="ent" style="color:var(--ink-dim)">SIN ENTIDAD</span>') +
-      (item.codigo ? '<span class="code">' + escapeHtml(item.codigo) + '</span>' : '') +
-      '</div>';
-  }
-
-  var out = '<div class="card ' + cls + '" data-cid="' + cid + '" onclick="openFullView(' + JSON.stringify(cid).replace(/"/g,'&quot;') + ')">';
-  out += head;
-  out += '<p class="title">' + escapeHtml(titleLine) + '</p>';
-  out += '<div class="body" id="body-' + cid + '">' + bodyEsc + '</div>';
-  out += '<div class="meta"><span class="date">' + escapeHtml(dateStr || '') + '</span>';
-  if(chips && chips.length){
-    out += '<span class="chips">' + chips.slice(0,3).map(function(c){ return '<span class="chip">#' + escapeHtml(c) + '</span>'; }).join('') + '</span>';
-  }
-  out += '</div></div>';
-  return out;
-}
-
-var CARD_STORE = {};
-
-function openFullView(cid){
-  var item = CARD_STORE[cid];
-  if(!item) return;
-
-  var chipsHtml = (item.chips && item.chips.length)
-    ? '<div class="fv-meta">' + item.chips.map(function(c){ return '<span class="fv-chip">#' + escapeHtml(c) + '</span>'; }).join('') + '</div>'
-    : '';
-
-  var headTextHtml = item.ent
-    ? '<div class="fv-headtext"><div class="fv-ent">' + escapeHtml(item.ent) + '</div>' + (item.sub ? '<div class="fv-sub">' + escapeHtml(item.sub) + '</div>' : '') + '</div>'
-    : (item.sub ? '<div class="fv-headtext"><div class="fv-sub">' + escapeHtml(item.sub) + '</div></div>' : '');
-
-  var fv = document.createElement('div');
-  fv.className = 'fullview';
-  fv.innerHTML =
-    '<div class="fv-header"><button class="fv-back" onclick="this.closest(\'.fullview\').remove()">←</button>' + headTextHtml + '</div>' +
-    '<div class="fv-scroll">' +
-      '<h2 class="fv-title">' + escapeHtml(item.title) + '</h2>' +
-      '<div class="fv-body">' + escapeHtml(item.body) + '</div>' +
-      (item.date ? '<div class="fv-date">' + escapeHtml(item.date) + '</div>' : '') +
-      chipsHtml +
+/* ===================== MODAL EXCEL ===================== */
+function openExcelModal(){
+  closeExcelModal();
+  var bg = document.createElement('div');
+  bg.className = 'excel-modal-bg';
+  bg.id = 'excelModalBg';
+  bg.onclick = function(e){ if(e.target === bg) closeExcelModal(); };
+  bg.innerHTML =
+    '<div class="excel-modal">' +
+      '<h3>EXCEL</h3>' +
+      '<button class="excel-option" onclick="exportarExcelPropio()"><span class="eo-icon">⬇️</span><span class="eo-text">Exportar Excel<small>Descarga tus notas/información propias</small></span></button>' +
+      '<button class="excel-option" onclick="document.getElementById(\'fileInputPropio\').click()"><span class="eo-icon">📥</span><span class="eo-text">Excel notas<small>Restaura un Excel propio ya exportado</small></span></button>' +
+      '<button class="excel-option" onclick="document.getElementById(\'fileInputLibreta\').click()"><span class="eo-icon">📚</span><span class="eo-text">Excel libreta<small>Importa el Excel maestro de PycLibreta</small></span></button>' +
+      '<button class="excel-cancel" onclick="closeExcelModal()">Cancelar</button>' +
     '</div>';
-  document.body.appendChild(fv);
+  document.body.appendChild(bg);
+}
+function closeExcelModal(){
+  var el = document.getElementById('excelModalBg');
+  if(el) el.remove();
 }
 
 /* ===================== ORDEN MANUAL ===================== */
@@ -560,7 +592,6 @@ function ordenarManual(kind, list){
   order.forEach(function(id){
     if(byId[id]){ ordered.push(byId[id]); delete byId[id]; }
   });
-  // elementos nuevos que no estaban en el orden guardado -> arriba del todo
   var nuevos = list.filter(function(n){ return byId[n.id]; });
   return nuevos.concat(ordered);
 }
@@ -625,28 +656,282 @@ function onDragStart(e, kind){
     list.insertBefore(row, placeholder);
     placeholder.remove();
 
-    var newOrder = Array.prototype.slice.call(list.children).map(function(el){ return el.dataset.id; });
-    saveOrder(kind, newOrder);
+    var visibleIds = Array.prototype.slice.call(list.children).map(function(el){ return el.dataset.id; });
+    var fullOrder = loadOrder(kind);
+    if(!fullOrder.length){
+      fullOrder = getMerged(kind).map(function(n){ return String(n.id); });
+    }
+    var indices = [];
+    visibleIds.forEach(function(id){
+      var idx = fullOrder.indexOf(id);
+      if(idx !== -1) indices.push(idx);
+    });
+    var insertPos = indices.length ? Math.min.apply(null, indices) : fullOrder.length;
+    fullOrder = fullOrder.filter(function(id){ return visibleIds.indexOf(id) === -1; });
+    if(insertPos > fullOrder.length) insertPos = fullOrder.length;
+    var args = [insertPos, 0].concat(visibleIds);
+    Array.prototype.splice.apply(fullOrder, args);
+    saveOrder(kind, fullOrder);
   }
 
   document.addEventListener('pointermove', onMove);
   document.addEventListener('pointerup', onUp);
 }
 
+/* ===================== RENDER ===================== */
+function setMainTab(tab){
+  STATE.mainTab = tab;
+  STATE.subEntidad = 'Todo';
+  document.querySelectorAll('.maintab').forEach(function(el){
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  render();
+}
+
+document.getElementById('searchInput').addEventListener('input', function(e){
+  STATE.query = e.target.value.trim().toLowerCase();
+  render();
+});
+
+function formatUpdated(){
+  var l = LIBRETA.updated, p = NOTAS_PROPIO.updated;
+  if(!l && !p) return 'sin datos cargados';
+  var latest = (l && p) ? (new Date(l) > new Date(p) ? l : p) : (l || p);
+  var d = new Date(latest);
+  return 'Actualizado ' + pad2(d.getDate()) + '/' + pad2(d.getMonth()+1) + '/' + d.getFullYear() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+
+function renderSubtabs(){
+  var subtabsEl = document.getElementById('subtabs');
+  if(STATE.mainTab !== 'info'){
+    subtabsEl.style.display = 'none';
+    subtabsEl.innerHTML = '';
+    return;
+  }
+  var entidades = {};
+  getMerged('info').forEach(function(o){
+    var e = (o.entidad || '').trim();
+    if(e) entidades[e] = true;
+  });
+  var lista = Object.keys(entidades).sort();
+  if(lista.length === 0){
+    subtabsEl.style.display = 'none';
+    return;
+  }
+  subtabsEl.style.display = 'flex';
+  var html = '<div class="subtab' + (STATE.subEntidad==='Todo'?' active':'') + '" onclick="setSubTab(\'Todo\')">Todo</div>';
+  lista.forEach(function(e){
+    html += '<div class="subtab' + (STATE.subEntidad===e?' active':'') + '" onclick="setSubTab(' + JSON.stringify(e).replace(/"/g,'&quot;') + ')">' + escapeHtml(e) + '</div>';
+  });
+  subtabsEl.innerHTML = html;
+}
+
+function setSubTab(e){
+  STATE.subEntidad = e;
+  render();
+}
+
+function matchQuery(fields){
+  if(!STATE.query) return true;
+  var q = STATE.query;
+  return fields.some(function(f){
+    return f && String(f).toLowerCase().indexOf(q) !== -1;
+  });
+}
+
+function cardHtml(kind, item){
+  var cls = kind === 'info' ? entityClass(item.entidad) : '';
+  var local = esLocal(kind, item.id);
+  var titleLine, headLine, bodyText, dateStr, chips;
+
+  if(kind === 'notas'){
+    titleLine = item.titulo || '(sin título)';
+    headLine = '';
+    bodyText = item.texto;
+    dateStr = item.fecha;
+    chips = item.etiquetas;
+  } else {
+    var headParts = [];
+    if(item.entidad) headParts.push(item.entidad.toUpperCase());
+    titleLine = [item.poblacion, item.tipoDato].filter(Boolean).join(' · ') || item.tipoDato || '(sin título)';
+    headLine = headParts.join(' ');
+    bodyText = item.informacion;
+    dateStr = item.fecha;
+    chips = item.etiquetas;
+    if(item.sistema) chips = [item.sistema].concat(chips);
+  }
+
+  var bodyEsc = escapeHtml(bodyText || '');
+  var cid = kind + '-' + item.id;
+
+  var head = '';
+  if(kind === 'info'){
+    head = '<div class="head">' +
+      (item.entidad ? '<span class="ent">' + escapeHtml(item.entidad.toUpperCase()) + '</span>' : '<span class="ent" style="color:var(--ink-dim)">SIN ENTIDAD</span>') +
+      (item.codigo ? '<span class="code">' + escapeHtml(item.codigo) + '</span>' : '') +
+      '</div>';
+  }
+
+  var out = '<div class="card ' + cls + '" data-cid="' + cid + '" onclick="openFullView(' + JSON.stringify(cid).replace(/"/g,'&quot;') + ')">';
+  out += head;
+  out += '<p class="title">' + escapeHtml(titleLine) + (local ? ' <span class="local-badge">✎</span>' : '') + '</p>';
+  out += '<div class="body" id="body-' + cid + '">' + bodyEsc + '</div>';
+  out += '<div class="meta"><span class="date">' + escapeHtml(dateStr || '') + '</span>';
+  if(chips && chips.length){
+    out += '<span class="chips">' + chips.slice(0,3).map(function(c){ return '<span class="chip">#' + escapeHtml(c) + '</span>'; }).join('') + '</span>';
+  }
+  out += '</div></div>';
+  return out;
+}
+
+var CARD_STORE = {};
+
+function openFullView(cid){
+  var item = CARD_STORE[cid];
+  if(!item) return;
+
+  var chipsHtml = (item.chips && item.chips.length)
+    ? '<div class="fv-meta">' + item.chips.map(function(c){ return '<span class="fv-chip">#' + escapeHtml(c) + '</span>'; }).join('') + '</div>'
+    : '';
+
+  var headTextHtml = item.ent
+    ? '<div class="fv-headtext"><div class="fv-ent">' + escapeHtml(item.ent) + '</div>' + (item.sub ? '<div class="fv-sub">' + escapeHtml(item.sub) + '</div>' : '') + '</div>'
+    : (item.sub ? '<div class="fv-headtext"><div class="fv-sub">' + escapeHtml(item.sub) + '</div></div>' : '');
+
+  var pencilBtn = '<button class="fv-pencil" onclick="closeFullViewThenEdit(' + JSON.stringify(cid).replace(/"/g,'&quot;') + ')">✎</button>';
+
+  var fv = document.createElement('div');
+  fv.className = 'fullview';
+  fv.innerHTML =
+    '<div class="fv-header"><button class="fv-back" onclick="this.closest(\'.fullview\').remove()">←</button>' + headTextHtml + pencilBtn + '</div>' +
+    '<div class="fv-scroll">' +
+      '<h2 class="fv-title">' + escapeHtml(item.title) + '</h2>' +
+      '<div class="fv-body">' + escapeHtml(item.body) + '</div>' +
+      (item.date ? '<div class="fv-date">' + escapeHtml(item.date) + '</div>' : '') +
+      chipsHtml +
+    '</div>';
+  document.body.appendChild(fv);
+}
+
+function closeFullViewThenEdit(cid){
+  var el = document.querySelector('.fullview');
+  if(el) el.remove();
+  var item = CARD_STORE[cid];
+  if(!item) return;
+  openEditor(item.kind, item.raw);
+}
+
+/* ===================== CREAR / EDITAR ===================== */
+function field(id, label, type, value){
+  var v = escapeHtml(value || '');
+  if(type === 'textarea'){
+    return '<div class="editor-field"><label class="editor-label">' + label + '</label><textarea class="editor-textarea" id="' + id + '">' + v + '</textarea></div>';
+  }
+  return '<div class="editor-field"><label class="editor-label">' + label + '</label><input class="editor-input" id="' + id + '" value="' + v + '"></div>';
+}
+
+function openEditorForCurrentTab(){
+  openEditor(STATE.mainTab, null);
+}
+
+function openEditor(kind, existing){
+  var isNew = !existing;
+  var item = existing || null;
+
+  var fieldsHtml = '';
+  if(kind === 'notas'){
+    fieldsHtml =
+      field('ed-titulo','Título', 'input', item ? item.titulo : '') +
+      field('ed-texto','Texto', 'textarea', item ? item.texto : '') +
+      field('ed-etiquetas','Etiquetas (separadas por espacio)', 'input', item ? item.etiquetas.join(' ') : '') +
+      field('ed-fecha','Fecha', 'input', item ? item.fecha : todayStr());
+  } else {
+    fieldsHtml =
+      field('ed-entidad','Entidad', 'input', item ? item.entidad : '') +
+      field('ed-codigo','Código', 'input', item ? item.codigo : '') +
+      field('ed-poblacion','Población', 'input', item ? item.poblacion : '') +
+      field('ed-sistema','Sistema', 'input', item ? item.sistema : '') +
+      field('ed-tipoDato','Tipo de dato', 'input', item ? item.tipoDato : '') +
+      field('ed-informacion','Información', 'textarea', item ? item.informacion : '') +
+      field('ed-etiquetas','Etiquetas (separadas por espacio)', 'input', item ? item.etiquetas.join(' ') : '') +
+      field('ed-fecha','Fecha', 'input', item ? item.fecha : todayStr());
+  }
+
+  var headerLabel = isNew ? ('NUEVA ' + (kind === 'notas' ? 'NOTA' : 'INFORMACIÓN')) : 'EDITAR';
+  var existingId = isNew ? '' : existing.id;
+
+  var fv = document.createElement('div');
+  fv.className = 'fullview';
+  fv.id = 'editorView';
+  fv.innerHTML =
+    '<div class="fv-header"><button class="fv-back" onclick="this.closest(\'.fullview\').remove()">←</button>' +
+      '<div class="fv-headtext"><div class="fv-ent">' + escapeHtml(headerLabel) + '</div></div>' +
+    '</div>' +
+    '<div class="fv-scroll">' +
+      fieldsHtml +
+      '<div class="editor-actions">' +
+        '<button class="editor-cancel-btn" onclick="this.closest(\'.fullview\').remove()">Cancelar</button>' +
+        '<button class="editor-save" onclick="guardarEditor(' + JSON.stringify(kind).replace(/"/g,'&quot;') + ',' + JSON.stringify(existingId).replace(/"/g,'&quot;') + ')">Guardar</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(fv);
+}
+
+function guardarEditor(kind, existingId){
+  var val = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  var etiquetas = splitEtiquetas(val('ed-etiquetas'));
+  var id = existingId || generarId(kind);
+  var item;
+
+  if(kind === 'notas'){
+    item = {
+      id: id,
+      titulo: val('ed-titulo'),
+      texto: val('ed-texto'),
+      fecha: val('ed-fecha') || todayStr(),
+      etiquetas: etiquetas
+    };
+    if(!item.titulo && !item.texto){ alert('Escribe al menos un título o un texto.'); return; }
+    NOTAS_PROPIO.notas[id] = item;
+  } else {
+    item = {
+      id: id,
+      fecha: val('ed-fecha') || todayStr(),
+      entidad: val('ed-entidad'),
+      codigo: val('ed-codigo'),
+      poblacion: val('ed-poblacion'),
+      sistema: val('ed-sistema'),
+      tipoDato: val('ed-tipoDato'),
+      informacion: val('ed-informacion'),
+      etiquetas: etiquetas
+    };
+    if(!item.tipoDato && !item.informacion){ alert('Escribe al menos un tipo de dato o información.'); return; }
+    NOTAS_PROPIO.info[id] = item;
+  }
+
+  NOTAS_PROPIO.updated = new Date().toISOString();
+  saveNotasPropio();
+
+  var el = document.getElementById('editorView');
+  if(el) el.remove();
+  render();
+}
+
+/* ===================== RENDER PRINCIPAL ===================== */
 function render(){
-  document.getElementById('updatedLabel').textContent = formatUpdated(DATA.updated);
+  document.getElementById('updatedLabel').textContent = formatUpdated();
   renderSubtabs();
 
   var contentEl = document.getElementById('content');
-  var totalItems = (DATA.notas.length + DATA.info.length);
+  var totalItems = getMerged('notas').length + getMerged('info').length;
 
   if(totalItems === 0){
     contentEl.innerHTML =
       '<div class="empty">' +
       '<div class="icon">🗒️</div>' +
       '<h2>Sin datos cargados</h2>' +
-      '<p>Sube el Excel de PycLibreta (hojas "Notas" e "Información")<br>para ver aquí tus notas y fichas técnicas.</p>' +
-      '<button class="bigbtn" onclick="document.getElementById(\'fileInput\').click()">Subir Excel</button>' +
+      '<p>Importa el Excel de PycLibreta (hojas "Notas" e "Información")<br>o crea tu primera nota con el botón +.</p>' +
+      '<button class="bigbtn" onclick="openExcelModal()">Abrir Excel</button>' +
       '</div>';
     return;
   }
@@ -656,7 +941,7 @@ function render(){
   var reorderActive = false;
   if(STATE.mainTab === 'notas'){
     kind = 'notas';
-    items = DATA.notas.filter(function(n){
+    items = getMerged('notas').filter(function(n){
       return matchQuery([n.titulo, n.texto, n.etiquetas.join(' ')]);
     });
     if(!STATE.query){
@@ -665,14 +950,12 @@ function render(){
     }
   } else {
     kind = 'info';
-    items = DATA.info.filter(function(n){
+    items = getMerged('info').filter(function(n){
       if(STATE.subEntidad !== 'Todo' && (n.entidad || '') !== STATE.subEntidad) return false;
       return matchQuery([n.entidad, n.codigo, n.poblacion, n.sistema, n.tipoDato, n.informacion, n.etiquetas.join(' ')]);
     });
-    // orden manual solo editable en "Todo" sin búsqueda; si hay filtro, se respeta
-    // el orden guardado pero sin tirador (no editable sobre un subconjunto)
     items = ordenarManual('info', items);
-    reorderActive = (STATE.subEntidad === 'Todo' && !STATE.query && items.length > 1);
+    reorderActive = (!STATE.query && items.length > 1);
   }
 
   if(items.length === 0){
@@ -680,12 +963,13 @@ function render(){
     return;
   }
 
-  var html;
-  html = '<div class="notas-list">';
+  var html = '<div class="notas-list">';
   items.forEach(function(item){
     var cid = kind + '-' + item.id;
+    var local = esLocal(kind, item.id);
     if(kind === 'notas'){
       CARD_STORE[cid] = {
+        kind: kind, id: item.id, raw: item, isLocal: local,
         title: item.titulo || '(sin título)',
         body: item.texto,
         ent: '', sub: '',
@@ -695,6 +979,7 @@ function render(){
     } else {
       var chips = item.sistema ? [item.sistema].concat(item.etiquetas) : item.etiquetas;
       CARD_STORE[cid] = {
+        kind: kind, id: item.id, raw: item, isLocal: local,
         title: [item.poblacion, item.tipoDato].filter(Boolean).join(' · ') || item.tipoDato || '(sin título)',
         body: item.informacion,
         ent: item.entidad ? item.entidad.toUpperCase() : '',
