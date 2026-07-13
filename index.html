@@ -191,6 +191,10 @@
     background:var(--surface); border:1px solid var(--line); color:var(--ink-dim);
     font-family:var(--mono); font-size:13.5px; padding:12px 16px; border-radius:10px;
   }
+  .editor-delete{
+    width:100%; text-align:center; background:none; border:none; color:#E86A6A;
+    font-family:var(--mono); font-size:12.5px; padding:16px 0 4px;
+  }
 
   .excel-modal-bg{
     position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:60;
@@ -462,6 +466,10 @@ function getMerged(kind){
 function esLocal(kind, id){
   var propio = (kind === 'notas' ? NOTAS_PROPIO.notas : NOTAS_PROPIO.info) || {};
   return Object.prototype.hasOwnProperty.call(propio, id);
+}
+function existeEnLibreta(kind, id){
+  var base = (kind === 'notas' ? LIBRETA.notas : LIBRETA.info) || [];
+  return base.some(function(it){ return it.id === id; });
 }
 
 /* ===================== CARGA / GUARDADO ===================== */
@@ -799,11 +807,14 @@ function openFullView(cid){
     : (item.sub ? '<div class="fv-headtext"><div class="fv-sub">' + escapeHtml(item.sub) + '</div></div>' : '');
 
   var pencilBtn = '<button class="fv-pencil" onclick="closeFullViewThenEdit(' + JSON.stringify(cid).replace(/"/g,'&quot;') + ')">✎</button>';
+  var trashBtn = item.isLocal
+    ? '<button class="fv-pencil" style="margin-left:8px;" onclick="eliminarItem(' + JSON.stringify(item.kind).replace(/"/g,'&quot;') + ',' + JSON.stringify(item.id).replace(/"/g,'&quot;') + ')">🗑</button>'
+    : '';
 
   var fv = document.createElement('div');
   fv.className = 'fullview';
   fv.innerHTML =
-    '<div class="fv-header"><button class="fv-back" onclick="this.closest(\'.fullview\').remove()">←</button>' + headTextHtml + pencilBtn + '</div>' +
+    '<div class="fv-header"><button class="fv-back" onclick="this.closest(\'.fullview\').remove()">←</button>' + headTextHtml + pencilBtn + trashBtn + '</div>' +
     '<div class="fv-scroll">' +
       '<h2 class="fv-title">' + escapeHtml(item.title) + '</h2>' +
       '<div class="fv-body">' + escapeHtml(item.body) + '</div>' +
@@ -873,8 +884,25 @@ function openEditor(kind, existing){
         '<button class="editor-cancel-btn" onclick="this.closest(\'.fullview\').remove()">Cancelar</button>' +
         '<button class="editor-save" onclick="guardarEditor(' + JSON.stringify(kind).replace(/"/g,'&quot;') + ',' + JSON.stringify(existingId).replace(/"/g,'&quot;') + ')">Guardar</button>' +
       '</div>' +
+      (existingId ? ('<button class="editor-delete" onclick="eliminarItem(' + JSON.stringify(kind).replace(/"/g,'&quot;') + ',' + JSON.stringify(existingId).replace(/"/g,'&quot;') + ')">🗑 Eliminar</button>') : '') +
     '</div>';
   document.body.appendChild(fv);
+}
+
+function eliminarItem(kind, id){
+  var enLibreta = existeEnLibreta(kind, id);
+  var msg = enLibreta
+    ? 'Esta nota también existe en el Excel de Libreta. Se eliminará tu versión local y se volverá a mostrar la original de Libreta. ¿Continuar?'
+    : '¿Eliminar esta nota? No se puede deshacer.';
+  if(!confirm(msg)) return;
+
+  var propio = (kind === 'notas' ? NOTAS_PROPIO.notas : NOTAS_PROPIO.info);
+  if(propio && Object.prototype.hasOwnProperty.call(propio, id)) delete propio[id];
+  NOTAS_PROPIO.updated = new Date().toISOString();
+  saveNotasPropio();
+
+  document.querySelectorAll('.fullview').forEach(function(el){ el.remove(); });
+  render();
 }
 
 function guardarEditor(kind, existingId){
