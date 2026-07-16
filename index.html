@@ -538,10 +538,10 @@ function todayStamp(){
 }
 
 function exportarExcelPropio(){
-  var notasArr = Object.keys(NOTAS_PROPIO.notas || {}).map(function(id){ return NOTAS_PROPIO.notas[id]; });
-  var infoArr = Object.keys(NOTAS_PROPIO.info || {}).map(function(id){ return NOTAS_PROPIO.info[id]; });
+  var notasArr = getMerged('notas');
+  var infoArr = getMerged('info');
   if(notasArr.length === 0 && infoArr.length === 0){
-    alert('Todavía no tienes notas propias creadas o editadas.');
+    alert('No hay datos cargados para exportar.');
     return;
   }
   var wsNotasData = [['ID','TITULO','TEXTO','FECHA','ETIQUETAS']];
@@ -555,7 +555,7 @@ function exportarExcelPropio(){
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsNotasData), 'Notas');
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsInfoData), 'Información');
-  XLSX.writeFile(wb, 'notas_propio_' + todayStamp() + '.xlsx');
+  XLSX.writeFile(wb, 'notas_completo_' + todayStamp() + '.xlsx');
   closeExcelModal();
 }
 
@@ -569,7 +569,7 @@ function openExcelModal(){
   bg.innerHTML =
     '<div class="excel-modal">' +
       '<h3>EXCEL</h3>' +
-      '<button class="excel-option" onclick="exportarExcelPropio()"><span class="eo-icon">⬇️</span><span class="eo-text">Exportar Excel<small>Descarga tus notas/información propias</small></span></button>' +
+      '<button class="excel-option" onclick="exportarExcelPropio()"><span class="eo-icon">⬇️</span><span class="eo-text">Exportar Excel<small>Descarga todo lo cargado: Libreta + tus notas propias</small></span></button>' +
       '<button class="excel-option" onclick="document.getElementById(\'fileInputPropio\').click()"><span class="eo-icon">📥</span><span class="eo-text">Excel notas<small>Restaura un Excel propio ya exportado</small></span></button>' +
       '<button class="excel-option" onclick="document.getElementById(\'fileInputLibreta\').click()"><span class="eo-icon">📚</span><span class="eo-text">Excel libreta<small>Importa el Excel maestro de PycLibreta</small></span></button>' +
       '<button class="excel-cancel" onclick="closeExcelModal()">Cancelar</button>' +
