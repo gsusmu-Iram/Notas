@@ -71,7 +71,7 @@
   }
   .subtab.active{ background:var(--surface-2); color:var(--amber); border-color:var(--amber); }
 
-  main{ padding:12px 14px 0; }
+  main{ padding:12px 14px 90px; }
 
   .notas-list{ display:flex; flex-direction:column; gap:10px; }
   .note-row{ display:flex; align-items:stretch; gap:0; touch-action:pan-y; }
@@ -933,7 +933,8 @@ function guardarEditor(kind, existingId){
       informacion: val('ed-informacion'),
       etiquetas: etiquetas
     };
-    if(!item.tipoDato && !item.informacion){ alert('Escribe al menos un tipo de dato o información.'); return; }
+    var infoVacia = !item.entidad && !item.codigo && !item.poblacion && !item.sistema && !item.tipoDato && !item.informacion;
+    if(infoVacia){ alert('Rellena al menos un campo antes de guardar.'); return; }
     NOTAS_PROPIO.info[id] = item;
   }
 
