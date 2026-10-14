@@ -17,8 +17,37 @@
     --ink-dim:#9AA3B2;
     --amber:#E8A33D;
     --line:#2A3240;
+    --on-amber:#1A140A;
+    --header-bg:rgba(20,24,31,0.94);
+    --ink-body:#C7CDD8;
+    --ink-body-2:#DCE0E8;
+    --chip-bg:rgba(255,255,255,0.06);
+    --pill-line:rgba(255,255,255,0.14);
+    --shadow:0 1px 2px rgba(0,0,0,.25);
     --mono: ui-monospace, "SF Mono", "Menlo", monospace;
     --sans: -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    /* colores de nota (tema oscuro) */
+    --nc-bone:#1B212B; --nc-sage:#1E2A23; --nc-arena:#2A2519; --nc-rosa:#2C1F1E;
+    --nc-cielo:#1A2533; --nc-lila:#241F31; --nc-menta:#182A25; --nc-ocre:#2B2414;
+  }
+  /* Tema claro estilo Bitácora */
+  :root[data-theme="light"]{
+    --bg:#F2F5F0;
+    --surface:#FFFFFF;
+    --surface-2:#E9EEE8;
+    --ink:#16221D;
+    --ink-dim:#6E7B74;
+    --amber:#2C5F4A;
+    --line:#DCE3DB;
+    --on-amber:#FFFFFF;
+    --header-bg:rgba(242,245,240,0.94);
+    --ink-body:#3D4B44;
+    --ink-body-2:#2A3731;
+    --chip-bg:rgba(22,34,29,0.06);
+    --pill-line:rgba(22,34,29,0.14);
+    --shadow:0 1px 2px rgba(22,34,29,.06), 0 6px 18px rgba(22,34,29,.05);
+    --nc-bone:#FFFFFF; --nc-sage:#E3EBE1; --nc-arena:#F3E9D6; --nc-rosa:#F3E1DC;
+    --nc-cielo:#DFE9F1; --nc-lila:#E7E1F1; --nc-menta:#DBEBE2; --nc-ocre:#EFE4C9;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{height:100%;}
@@ -29,7 +58,7 @@
   }
   header{
     position:sticky; top:0; z-index:10;
-    background:rgba(20,24,31,0.94); backdrop-filter:blur(8px);
+    background:var(--header-bg); backdrop-filter:blur(8px);
     padding:14px 14px 10px; border-bottom:1px solid var(--line);
   }
   .brand{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
@@ -61,7 +90,7 @@
     flex:1; text-align:center; font-family:var(--mono); font-size:12px; padding:8px 10px;
     border-radius:8px; border:1px solid var(--line); color:var(--ink-dim); background:var(--surface);
   }
-  .maintab.active{ background:var(--amber); color:#1A140A; border-color:var(--amber); font-weight:600;}
+  .maintab.active{ background:var(--amber); color:var(--on-amber); border-color:var(--amber); font-weight:600;}
 
   .subtabs{ display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;}
   .subtabs::-webkit-scrollbar{ display:none; }
@@ -98,7 +127,7 @@
   .card .code{ font-family:var(--mono); font-size:10px; color:var(--ink-dim); }
   .card .title{ font-size:13.5px; font-weight:600; margin:0 0 4px; color:var(--ink);}
   .card .body{
-    font-size:12.5px; line-height:1.5; color:#C7CDD8; word-break:break-word;
+    font-size:12.5px; line-height:1.5; color:var(--ink-body); word-break:break-word;
     display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
   }
   .card .meta{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; flex-wrap:wrap; gap:4px;}
@@ -106,7 +135,7 @@
   .card .chips{ display:flex; gap:4px; flex-wrap:wrap; }
   .card .chip{
     font-size:9.5px; font-family:var(--mono); padding:2px 6px; border-radius:5px;
-    background:rgba(255,255,255,0.06); color:var(--ink-dim);
+    background:var(--chip-bg); color:var(--ink-dim);
   }
   .local-badge{ font-size:10.5px; color:var(--amber); font-family:var(--mono); margin-left:5px; }
 
@@ -114,7 +143,7 @@
   .ce-bbva::before{background:#3E7BFA;} .ce-bbva .ent{color:#3E7BFA;}
   .ce-cajamar::before{background:#6EC46B;} .ce-cajamar .ent{color:#6EC46B;}
   .ce-caixa::before{background:#E86A6A;} .ce-caixa .ent{color:#E86A6A;}
-  .ce-orange::before{background:var(--amber);} .ce-orange .ent{color:var(--amber);}
+  .ce-orange::before{background:#E8A33D;} .ce-orange .ent{color:#E8A33D;}
   .ce-abanca::before{background:#B07EEA;} .ce-abanca .ent{color:#B07EEA;}
   .ce-repsol::before{background:#FF7A1A;} .ce-repsol .ent{color:#FF7A1A;}
   .ce-sprinter::before{background:#F27EB0;} .ce-sprinter .ent{color:#F27EB0;}
@@ -129,7 +158,7 @@
   .empty h2{ font-size:15px; color:var(--ink); font-family:var(--mono); margin:0 0 6px;}
   .empty p{ font-size:12.5px; line-height:1.5; margin:0 0 18px; }
   .bigbtn{
-    background:var(--amber); color:#1A140A; border:none; font-weight:700;
+    background:var(--amber); color:var(--on-amber); border:none; font-weight:700;
     font-family:var(--mono); font-size:13px; padding:12px 20px; border-radius:10px;
   }
   .no-results{ text-align:center; color:var(--ink-dim); font-size:12.5px; font-family:var(--mono); padding:40px 20px;}
@@ -138,7 +167,7 @@
 
   .fab{
     position:fixed; right:18px; bottom:22px; width:54px; height:54px; border-radius:50%;
-    background:var(--amber); color:#1A140A; font-size:28px; font-weight:700; border:none;
+    background:var(--amber); color:var(--on-amber); font-size:28px; font-weight:700; border:none;
     box-shadow:0 6px 16px rgba(0,0,0,0.45); z-index:30; display:flex; align-items:center; justify-content:center;
     line-height:1;
   }
@@ -167,11 +196,11 @@
   .fv-sub{ font-size:10.5px; color:var(--ink-dim); font-family:var(--mono); margin-top:1px;}
   .fv-scroll{ flex:1; overflow-y:auto; padding:18px 18px 40px; }
   .fv-title{ font-size:19px; font-weight:700; margin:0 0 14px; line-height:1.35; }
-  .fv-body{ font-size:15px; line-height:1.7; color:#DCE0E8; white-space:pre-wrap; word-break:break-word; }
+  .fv-body{ font-size:15px; line-height:1.7; color:var(--ink-body-2); white-space:pre-wrap; word-break:break-word; }
   .fv-meta{ display:flex; flex-wrap:wrap; gap:6px; margin-top:22px; padding-top:14px; border-top:1px solid var(--line); }
   .fv-chip{
     font-size:11px; font-family:var(--mono); padding:4px 9px; border-radius:6px;
-    background:rgba(255,255,255,0.06); color:var(--ink-dim);
+    background:var(--chip-bg); color:var(--ink-dim);
   }
   .fv-date{ font-size:11px; color:var(--ink-dim); font-family:var(--mono); margin-top:22px; }
 
@@ -185,7 +214,7 @@
   .ek-title::placeholder{ color:var(--ink-dim); opacity:0.55; }
   .ek-divider{ height:1px; background:var(--line); margin:2px 0 6px; }
   .ek-body{
-    width:100%; background:none; border:none; outline:none; color:#DCE0E8;
+    width:100%; background:none; border:none; outline:none; color:var(--ink-body-2);
     font-size:16px; line-height:1.7; font-family:var(--sans); padding:8px 0;
     min-height:180px; resize:none;
   }
@@ -208,7 +237,7 @@
     border-top:1px solid var(--line); background:var(--bg); flex-shrink:0;
   }
   .editor-save{
-    flex:1; background:var(--amber); color:#1A140A; border:none; font-weight:700;
+    flex:1; background:var(--amber); color:var(--on-amber); border:none; font-weight:700;
     font-family:var(--mono); font-size:14px; padding:13px; border-radius:11px;
     display:flex; align-items:center; justify-content:center; gap:6px;
   }
@@ -241,7 +270,119 @@
     width:100%; text-align:center; background:none; border:none; color:var(--ink-dim);
     font-family:var(--mono); font-size:12.5px; padding:10px; margin-top:4px;
   }
+
+  /* ===== Botones cabecera ===== */
+  .head-btns{ display:flex; gap:6px; align-items:center; }
+  .theme-btn{ padding:6px 9px; font-size:13px; }
+
+  /* ===== Notas en mosaico (estilo Bitácora) ===== */
+  .n-seccion{ font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--ink-dim); margin:2px 0 9px 2px; }
+  .mosaico{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:10px;
+    grid-auto-rows:2px; align-items:start; margin-bottom:8px; }
+  @media (min-width:640px){ .mosaico{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+  .nwrap{ min-width:0; }
+  .nota{ border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow);
+    padding:11px 12px 10px; position:relative; cursor:pointer; color:var(--ink);
+    transition:transform .12s, box-shadow .12s, opacity .12s; }
+  .nota .n-tit{ font-weight:600; font-size:14px; line-height:1.3; margin-bottom:4px;
+    word-break:break-word; padding-right:18px; }
+  .nota .n-txt{ font-size:13px; line-height:1.45; color:var(--ink-body); word-break:break-word;
+    max-height:170px; overflow:hidden; }
+  .nota .n-txt.corta{ -webkit-mask-image:linear-gradient(#000 72%, transparent); mask-image:linear-gradient(#000 72%, transparent); }
+  .n-txt p, .n-txt div{ margin:0; }
+  .n-txt ul, .n-txt ol{ margin:2px 0; padding-left:18px; }
+  .n-txt h1, .n-txt h2, .n-txt h3{ font-size:1.1em; margin:2px 0; }
+  .nota .n-pie{ display:flex; align-items:center; gap:6px; margin-top:8px; flex-wrap:wrap; padding-right:22px; }
+  .nota .n-eti{ font-family:var(--mono); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink-dim); border:1px solid var(--pill-line); border-radius:99px; padding:1px 7px; background:none; }
+  .nota .n-fec{ font-family:var(--mono); font-size:9.5px; color:var(--ink-dim); }
+  .nota .n-loc{ font-family:var(--mono); font-size:10px; color:var(--amber); }
+  .n-pin{ position:absolute; top:6px; right:6px; width:24px; height:24px; display:grid; place-items:center;
+    border-radius:6px; opacity:.32; background:none; border:none; padding:0; }
+  .n-pin svg{ width:13px; height:13px; stroke:var(--ink); stroke-width:1.8; fill:none; }
+  .nota.fija .n-pin{ opacity:1; }
+  .nota.fija .n-pin svg{ fill:var(--ink); }
+  .n-asa{ position:absolute; bottom:3px; right:3px; width:30px; height:30px; display:grid; place-items:center;
+    opacity:.35; touch-action:none; cursor:grab; }
+  .n-asa svg{ width:13px; height:13px; stroke:var(--ink); stroke-width:1.9; fill:none; }
+  .nota.llevando{ opacity:.55; transform:scale(.96); box-shadow:0 10px 24px rgba(0,0,0,.25); z-index:5; }
+  .nota.destino{ outline:2px dashed var(--amber); outline-offset:2px; }
+  /* lista dentro de la tarjeta */
+  .n-lista{ margin-top:2px; }
+  .n-li{ display:flex; align-items:flex-start; gap:7px; padding:3px 0; width:100%; text-align:left;
+    background:none; border:none; color:inherit; font:inherit; }
+  .n-li i{ flex:none; width:14px; height:14px; border-radius:4px; border:1.4px solid var(--ink-dim);
+    margin-top:2px; display:grid; place-items:center; }
+  .n-li i::after{ content:""; width:6px; height:3px; border-left:1.8px solid #fff; border-bottom:1.8px solid #fff;
+    transform:rotate(-45deg) translateY(-1px); opacity:0; }
+  .n-li.ok i{ background:var(--amber); border-color:var(--amber); }
+  .n-li.ok i::after{ opacity:1; }
+  .n-li span{ font-size:12.5px; line-height:1.35; word-break:break-word; color:var(--ink-body); }
+  .n-li.ok span{ text-decoration:line-through; color:var(--ink-dim); }
+  .n-mas{ font-family:var(--mono); font-size:9.5px; color:var(--ink-dim); margin-top:4px; display:block; }
+
+  /* clases de formato que vienen de Libreta (Quill) */
+  .ql-size-small{ font-size:.75em; }
+  .ql-size-large{ font-size:1.4em; }
+  .ql-size-huge{ font-size:1.9em; }
+  .ql-font-cursiva{ font-family:Georgia, serif; font-style:italic; }
+  li[data-list="bullet"]{ list-style-type:disc; }
+
+  /* ===== Editor de nota a pantalla completa ===== */
+  .neditor{ background:var(--nc-bone); }
+  .ne-top{ display:flex; align-items:center; gap:6px; padding:calc(8px + env(safe-area-inset-top)) 10px 8px; flex:none; }
+  .ne-sp{ flex:1; }
+  .ne-ico{ width:38px; height:38px; border-radius:10px; display:grid; place-items:center; background:none;
+    border:1px solid transparent; color:var(--ink); font-size:17px; padding:0; }
+  .ne-ico svg{ width:19px; height:19px; stroke:var(--ink); stroke-width:1.8; fill:none; }
+  .ne-ico[aria-pressed="true"]{ background:var(--ink); color:var(--bg); }
+  .ne-ico[aria-pressed="true"] svg{ stroke:var(--bg); fill:var(--bg); }
+  .ne-ico[aria-pressed="false"]{ opacity:.5; }
+  .ne-ico.ok{ background:var(--amber); color:var(--on-amber); font-weight:700; }
+  .ne-ico.borrar{ color:#E86A6A; }
+  .ne-tit{ border:none; background:none; outline:none; color:var(--ink); font-family:var(--sans);
+    font-weight:700; font-size:22px; padding:4px 18px 8px; flex:none; width:100%; }
+  .ne-tit::placeholder{ color:var(--ink-dim); opacity:.55; }
+  .ne-tools{ display:flex; gap:2px; padding:0 12px 6px; flex:none; overflow-x:auto; scrollbar-width:none; }
+  .ne-tools::-webkit-scrollbar{ display:none; }
+  .ne-tools button{ flex:none; min-width:36px; height:34px; border-radius:8px; padding:0 8px; background:none;
+    border:none; font-size:15px; color:var(--ink); display:grid; place-items:center; }
+  .ne-tools button:active{ background:var(--chip-bg); }
+  .ne-tools .b{ font-weight:800; } .ne-tools .i{ font-style:italic; }
+  .ne-tools .u{ text-decoration:underline; } .ne-tools .s{ text-decoration:line-through; }
+  .ne-sepv{ width:1px; background:var(--line); margin:6px 5px; flex:none; }
+  .ne-body{ flex:1; overflow-y:auto; padding:4px 18px 24px; outline:none; font-size:16px; line-height:1.55;
+    color:var(--ink-body-2); word-break:break-word; }
+  .ne-body:empty::before{ content:attr(data-ph); color:var(--ink-dim); opacity:.55; }
+  .ne-body p, .ne-body div{ margin:0; }
+  .ne-body ul, .ne-body ol{ padding-left:22px; margin:6px 0; }
+  .ne-items{ flex:1; overflow-y:auto; padding:2px 12px 24px; }
+  .it-fila{ display:flex; align-items:center; gap:9px; padding:3px 0; }
+  .it-fila .caja{ flex:none; width:20px; height:20px; border-radius:6px; border:1.6px solid var(--ink-dim);
+    background:transparent; display:grid; place-items:center; padding:0; color:#fff; font-size:12px; line-height:1; }
+  .it-fila.ok .caja{ background:var(--amber); border-color:var(--amber); }
+  .it-fila input{ flex:1; min-width:0; border:none; background:none; outline:none; font-size:15.5px; padding:7px 0; color:var(--ink); }
+  .it-fila.ok input{ text-decoration:line-through; color:var(--ink-dim); }
+  .it-quitar{ flex:none; width:28px; height:28px; display:grid; place-items:center; opacity:.45; background:none;
+    border:none; color:var(--ink); font-size:15px; }
+  .it-add{ display:flex; align-items:center; gap:9px; padding:9px 0; color:var(--ink-dim); font-size:15px; width:100%;
+    background:none; border:none; text-align:left; }
+  .it-add b{ font-size:19px; font-weight:600; width:20px; text-align:center; }
+  .ne-foot{ flex:none; border-top:1px solid var(--line); padding:9px 14px calc(9px + env(safe-area-inset-bottom));
+    display:flex; align-items:center; gap:10px; overflow-x:auto; scrollbar-width:none; }
+  .ne-foot::-webkit-scrollbar{ display:none; }
+  .ne-foot input{ flex:none; border:1px solid var(--pill-line); background:transparent; color:var(--ink);
+    border-radius:8px; padding:7px 9px; font-size:13px; outline:none; }
+  .ne-foot #neTags{ width:150px; } .ne-foot #neFecha{ width:104px; font-family:var(--mono); }
+  .ne-cols{ display:flex; gap:7px; flex:none; }
+  .ne-cols button{ width:26px; height:26px; border-radius:50%; border:1px solid var(--pill-line); padding:0; }
+  .ne-cols button[aria-pressed="true"]{ outline:2px solid var(--ink); outline-offset:2px; }
 </style>
+<script>
+  // Aplica el tema guardado antes de pintar (evita parpadeo)
+  try{ if(localStorage.getItem('notasapp_v1_theme') === 'light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+</script>
 </head>
 <body>
 
@@ -250,11 +391,14 @@
     <div class="brand-left">
       <div class="badge"></div>
       <div>
-        <h1>NOTAS <span class="version-tag">v2</span></h1>
+        <h1>NOTAS <span class="version-tag">v3</span></h1>
         <div class="updated" id="updatedLabel">sin datos cargados</div>
       </div>
     </div>
-    <button class="refresh-btn" onclick="openExcelModal()">⟳ Excel</button>
+    <div class="head-btns">
+      <button class="refresh-btn theme-btn" id="themeBtn" onclick="toggleTheme()" title="Cambiar tema">◐</button>
+      <button class="refresh-btn" onclick="openExcelModal()">⟳ Excel</button>
+    </div>
   </div>
   <div class="search">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AA3B2" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -284,7 +428,7 @@
 // - NOTAS_PROPIO: lo creado/editado aquí mismo, por id. Siempre gana sobre LIBRETA al fusionar.
 var LIBRETA = { notas: [], info: [], updated: null };
 var NOTAS_PROPIO = { notas: {}, info: {}, updated: null };
-var STATE = { mainTab: 'notas', subEntidad: 'Todo', query: '' };
+var STATE = { mainTab: 'notas', subEntidad: 'Todo', subEtiqueta: 'Todas', query: '' };
 
 var LIBRETA_KEY = 'notasapp_v1_libreta';
 var NOTASPROPIO_KEY = 'notasapp_v1_propio';
@@ -376,6 +520,116 @@ function generarId(kind){
   return (kind === 'notas' ? 'N_' : 'IT_') + Date.now();
 }
 
+/* ===================== FORMATO DE NOTAS (HTML de Libreta) ===================== */
+// Libreta guarda el texto de las notas como HTML de Quill (negrita, cursiva, tamaños...).
+// Se conserva ese HTML, pero limpio: solo etiquetas de formato, sin scripts ni atributos raros.
+var TAGS_PERMITIDAS = { B:1, STRONG:1, I:1, EM:1, U:1, S:1, STRIKE:1, DEL:1, BR:1, P:1, DIV:1,
+  UL:1, OL:1, LI:1, SPAN:1, H1:1, H2:1, H3:1, BLOCKQUOTE:1, PRE:1, CODE:1 };
+var TAGS_FUERA = /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|LINK|META|TITLE|NOSCRIPT|TEMPLATE)$/;
+
+function limpiarNodo(node){
+  Array.prototype.slice.call(node.childNodes).forEach(function(ch){
+    if(ch.nodeType === 8){ ch.remove(); return; }
+    if(ch.nodeType !== 1) return;
+    if(TAGS_FUERA.test(ch.tagName)){ ch.remove(); return; }
+    limpiarNodo(ch);
+    if(!TAGS_PERMITIDAS[ch.tagName]){
+      while(ch.firstChild) ch.parentNode.insertBefore(ch.firstChild, ch);
+      ch.remove();
+      return;
+    }
+    Array.prototype.slice.call(ch.attributes).forEach(function(a){
+      if(a.name === 'class'){
+        var cls = a.value.split(/\s+/).filter(function(c){ return /^ql-(size|font|align|indent)-[a-z0-9]+$/.test(c); }).join(' ');
+        if(cls) ch.setAttribute('class', cls); else ch.removeAttribute('class');
+      } else if(!(a.name === 'data-list' && ch.tagName === 'LI')){
+        ch.removeAttribute(a.name);
+      }
+    });
+  });
+}
+function sanitizeHtml(html){
+  var tpl = document.createElement('template');
+  tpl.innerHTML = String(html == null ? '' : html).replace(/(_x000d_)+/gi, '');
+  limpiarNodo(tpl.content);
+  return tpl.innerHTML.trim();
+}
+function esHtml(str){
+  return /<\/?(p|br|div|b|strong|i|em|u|s|strike|span|ul|ol|li|h[1-6])\b[^>]*>/i.test(String(str || ''));
+}
+function textoNotaImportado(raw){
+  if(raw === null || raw === undefined) return '';
+  var s = String(raw);
+  return esHtml(s) ? sanitizeHtml(s) : limpiarTexto(s);
+}
+// HTML listo para pintar (sirve para texto plano antiguo y para HTML de Libreta)
+function contenidoHtml(texto){
+  if(!texto) return '';
+  if(esHtml(texto)) return sanitizeHtml(texto);
+  return escapeHtml(texto).replace(/\n/g, '<br>');
+}
+// Texto plano (para buscar y para detectar listas)
+function textoPlano(texto){
+  return limpiarTexto(texto || '');
+}
+// Nota de tipo lista: todas sus líneas empiezan por ☐ o ☑
+function parseLista(texto){
+  var lineas = textoPlano(texto).split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+  if(!lineas.length) return null;
+  var items = [];
+  for(var i=0; i<lineas.length; i++){
+    var m = lineas[i].match(/^([☐☑])\s?(.*)$/);
+    if(!m) return null;
+    items.push({ txt: m[2], ok: m[1] === '☑' });
+  }
+  return items;
+}
+function listaAHtml(items){
+  return items.filter(function(i){ return i.txt && i.txt.trim(); }).map(function(i){
+    return '<p>' + (i.ok ? '☑' : '☐') + ' ' + escapeHtml(i.txt.trim()) + '</p>';
+  }).join('');
+}
+var MESES_C = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function fechaCorta(str){
+  var m = String(str || '').match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if(!m) return str || '';
+  var y = +m[3]; if(y < 100) y += 2000;
+  var out = (+m[1]) + ' ' + (MESES_C[(+m[2]) - 1] || m[2]);
+  if(y !== new Date().getFullYear()) out += ' ' + String(y).slice(-2);
+  return out;
+}
+
+/* ===================== COLOR / FIJADA (solo en este dispositivo) ===================== */
+// Se guardan aparte, por id, para no cambiar el formato del Excel que se comparte con Libreta.
+var META_KEY = 'notasapp_v1_meta_notas';
+var COLORES_NOTA = ['bone','sage','arena','rosa','cielo','lila','menta','ocre'];
+var META = {};
+function cargarMeta(){ try{ META = JSON.parse(localStorage.getItem(META_KEY) || '{}') || {}; }catch(e){ META = {}; } }
+function guardarMeta(){ try{ localStorage.setItem(META_KEY, JSON.stringify(META)); }catch(e){} }
+function metaDe(id){ return META[id] || {}; }
+function setMeta(id, cambios){
+  var m = META[id] || {};
+  Object.keys(cambios).forEach(function(k){ m[k] = cambios[k]; });
+  if(m.color === 'bone') delete m.color;
+  if(!m.fija) delete m.fija;
+  if(Object.keys(m).length) META[id] = m; else delete META[id];
+  guardarMeta();
+}
+
+/* ===================== TEMA ===================== */
+var THEME_KEY = 'notasapp_v1_theme';
+function aplicarTema(t){
+  if(t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+  var mt = document.querySelector('meta[name="theme-color"]');
+  if(mt) mt.setAttribute('content', t === 'light' ? '#F2F5F0' : '#14181F');
+}
+function toggleTheme(){
+  var t = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  try{ localStorage.setItem(THEME_KEY, t); }catch(e){}
+  aplicarTema(t);
+}
+
 /* ===================== LECTURA DE EXCEL ===================== */
 var HEADER_SETS = {
   notas: ['ID','TITULO','TEXTO','FECHA','ETIQUETAS'],
@@ -432,7 +686,7 @@ function procesarLibro(workbook){
         return {
           id: String(o.ID),
           titulo: limpiarTexto(o.TITULO || ''),
-          texto: limpiarTexto(o.TEXTO || ''),
+          texto: textoNotaImportado(o.TEXTO),
           fecha: excelFecha(o.FECHA),
           etiquetas: splitEtiquetas(o.ETIQUETAS)
         };
@@ -715,6 +969,7 @@ function onDragStart(e, kind){
 function setMainTab(tab){
   STATE.mainTab = tab;
   STATE.subEntidad = 'Todo';
+  STATE.subEtiqueta = 'Todas';
   document.querySelectorAll('.maintab').forEach(function(el){
     el.classList.toggle('active', el.dataset.tab === tab);
   });
@@ -736,6 +991,24 @@ function formatUpdated(){
 
 function renderSubtabs(){
   var subtabsEl = document.getElementById('subtabs');
+  if(STATE.mainTab === 'notas'){
+    var tags = {};
+    getMerged('notas').forEach(function(n){ (n.etiquetas || []).forEach(function(t){ tags[t] = true; }); });
+    var listaT = Object.keys(tags).sort(function(a,b){ return a.localeCompare(b, 'es', {sensitivity:'base'}); });
+    if(STATE.subEtiqueta !== 'Todas' && !tags[STATE.subEtiqueta]) STATE.subEtiqueta = 'Todas';
+    if(listaT.length === 0){
+      subtabsEl.style.display = 'none';
+      subtabsEl.innerHTML = '';
+      return;
+    }
+    subtabsEl.style.display = 'flex';
+    var h = '<div class="subtab' + (STATE.subEtiqueta==='Todas'?' active':'') + '" onclick="setEtiqueta(\'Todas\')">Todas</div>';
+    listaT.forEach(function(t){
+      h += '<div class="subtab' + (STATE.subEtiqueta===t?' active':'') + '" onclick="setEtiqueta(' + JSON.stringify(t).replace(/"/g,'&quot;') + ')">#' + escapeHtml(t) + '</div>';
+    });
+    subtabsEl.innerHTML = h;
+    return;
+  }
   if(STATE.mainTab !== 'info'){
     subtabsEl.style.display = 'none';
     subtabsEl.innerHTML = '';
@@ -762,6 +1035,11 @@ function renderSubtabs(){
 function setSubTab(e){
   STATE.subEntidad = e;
   render();
+}
+function setEtiqueta(t){
+  STATE.subEtiqueta = t;
+  render();
+  window.scrollTo(0, 0);
 }
 
 function matchQuery(fields){
@@ -867,6 +1145,7 @@ function openEditorForCurrentTab(){
 }
 
 function openEditor(kind, existing){
+  if(kind === 'notas') return openNotaEditor(existing);
   var isNew = !existing;
   var item = existing || null;
 
@@ -928,6 +1207,8 @@ function eliminarItem(kind, id){
 
   var propio = (kind === 'notas' ? NOTAS_PROPIO.notas : NOTAS_PROPIO.info);
   if(propio && Object.prototype.hasOwnProperty.call(propio, id)) delete propio[id];
+  if(kind === 'notas' && !enLibreta && META[id]){ delete META[id]; guardarMeta(); }
+  if(kind === 'notas') NE = null;
   NOTAS_PROPIO.updated = new Date().toISOString();
   saveNotasPropio();
 
@@ -996,18 +1277,13 @@ function render(){
   }
 
   CARD_STORE = {};
+  if(STATE.mainTab === 'notas'){
+    renderNotas(contentEl);
+    return;
+  }
   var items, kind;
   var reorderActive = false;
-  if(STATE.mainTab === 'notas'){
-    kind = 'notas';
-    items = getMerged('notas').filter(function(n){
-      return matchQuery([n.titulo, n.texto, n.etiquetas.join(' ')]);
-    });
-    if(!STATE.query){
-      items = ordenarManual('notas', items);
-      reorderActive = items.length > 1;
-    }
-  } else {
+  {
     kind = 'info';
     items = getMerged('info').filter(function(n){
       if(STATE.subEntidad !== 'Todo' && (n.entidad || '') !== STATE.subEntidad) return false;
@@ -1058,9 +1334,435 @@ function render(){
   if(reorderActive) initDragReorder(kind);
 }
 
+/* ===================== NOTAS: MOSAICO ===================== */
+var NOTA_INDEX = {};
+var ICO_PIN = '<svg viewBox="0 0 24 24"><path d="M12 17v5M9 3h6l-1 6 3 3v2H7v-2l3-3z" stroke-linejoin="round"/></svg>';
+var ICO_ASA = '<svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function tarjetaNota(n, conAsa){
+  var meta = metaDe(n.id);
+  var color = COLORES_NOTA.indexOf(meta.color) !== -1 ? meta.color : 'bone';
+  var idAttr = escapeHtml(String(n.id));
+  var pie = [];
+  var cuerpo = '';
+  var lista = parseLista(n.texto);
+  if(lista){
+    var conIdx = lista.map(function(it, i){ return { txt: it.txt, ok: it.ok, i: i }; });
+    var ver = conIdx.filter(function(x){ return !x.ok; }).concat(conIdx.filter(function(x){ return x.ok; })).slice(0, 6);
+    var hechos = lista.filter(function(x){ return x.ok; }).length;
+    cuerpo = '<div class="n-lista">' + ver.map(function(x){
+      return '<button class="n-li' + (x.ok ? ' ok' : '') + '" data-chk="' + x.i + '"><i></i><span>' + escapeHtml(x.txt) + '</span></button>';
+    }).join('') + (lista.length > 6 ? '<span class="n-mas">+' + (lista.length - 6) + ' más</span>' : '') + '</div>';
+    pie.push('<span class="n-eti">' + hechos + '/' + lista.length + '</span>');
+  } else if(n.texto){
+    cuerpo = '<div class="n-txt">' + contenidoHtml(n.texto) + '</div>';
+  }
+  if(n.fecha) pie.push('<span class="n-fec">' + escapeHtml(fechaCorta(n.fecha)) + '</span>');
+  if(esLocal('notas', n.id)) pie.push('<span class="n-loc" title="Editada en esta app">✎</span>');
+  (n.etiquetas || []).slice(0, 3).forEach(function(t){
+    pie.push('<button class="n-eti" data-tag="' + escapeHtml(t) + '">#' + escapeHtml(t) + '</button>');
+  });
+
+  return '<div class="nwrap" data-id="' + idAttr + '">' +
+    '<div class="nota' + (meta.fija ? ' fija' : '') + '" data-open="' + idAttr + '" style="background:var(--nc-' + color + ')">' +
+      '<button class="n-pin" data-pin="' + idAttr + '" aria-label="Fijar">' + ICO_PIN + '</button>' +
+      (n.titulo ? '<div class="n-tit">' + escapeHtml(n.titulo) + '</div>' : '') +
+      cuerpo +
+      (pie.length ? '<div class="n-pie">' + pie.join('') + '</div>' : '') +
+      (conAsa ? '<span class="n-asa" aria-label="Mover">' + ICO_ASA + '</span>' : '') +
+    '</div></div>';
+}
+
+function renderNotas(contentEl){
+  NOTA_INDEX = {};
+  var todas = getMerged('notas');
+  todas.forEach(function(n){ NOTA_INDEX[n.id] = n; });
+  var items = todas.filter(function(n){
+    if(STATE.subEtiqueta !== 'Todas' && (n.etiquetas || []).indexOf(STATE.subEtiqueta) === -1) return false;
+    return matchQuery([n.titulo, textoPlano(n.texto), (n.etiquetas || []).join(' ')]);
+  });
+  if(items.length === 0){
+    contentEl.innerHTML = '<div class="no-results">' + (STATE.query ? 'Sin resultados para esta búsqueda.' : 'No hay notas.') + '</div>';
+    return;
+  }
+  items = ordenarManual('notas', items);
+  var reorder = !STATE.query && items.length > 1;
+  var fijas = items.filter(function(n){ return metaDe(n.id).fija; });
+  var resto = items.filter(function(n){ return !metaDe(n.id).fija; });
+  var html = '';
+  if(fijas.length){
+    html += '<div class="n-seccion">Fijadas</div><div class="mosaico">' + fijas.map(function(n){ return tarjetaNota(n, reorder); }).join('') + '</div>';
+    if(resto.length) html += '<div class="n-seccion">Otras</div>';
+  }
+  if(resto.length) html += '<div class="mosaico">' + resto.map(function(n){ return tarjetaNota(n, reorder); }).join('') + '</div>';
+  contentEl.innerHTML = html;
+  packMosaic();
+  if(reorder){
+    contentEl.querySelectorAll('.n-asa').forEach(function(h){ h.addEventListener('pointerdown', startNotaDrag); });
+  }
+}
+
+// Calcula cuántas filas ocupa cada tarjeta para que el mosaico quede sin huecos
+function packMosaic(){
+  document.querySelectorAll('.mosaico .nwrap').forEach(function(w){
+    var nota = w.firstElementChild;
+    if(!nota) return;
+    var t = nota.querySelector('.n-txt');
+    if(t) t.classList.toggle('corta', t.scrollHeight > t.clientHeight + 2);
+    w.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil((nota.getBoundingClientRect().height + 10) / 2));
+  });
+}
+var _packTimer = null;
+window.addEventListener('resize', function(){
+  clearTimeout(_packTimer);
+  _packTimer = setTimeout(packMosaic, 120);
+});
+
+// Clicks en las tarjetas de notas (abrir, fijar, marcar casilla, filtrar por etiqueta)
+document.getElementById('content').addEventListener('click', function(e){
+  if(STATE.mainTab !== 'notas') return;
+  var t = e.target;
+  if(t.closest('.n-asa')) return;
+  var nota = t.closest('[data-open]');
+  if(!nota) return;
+  var id = nota.getAttribute('data-open');
+  var pin = t.closest('[data-pin]');
+  if(pin){
+    setMeta(id, { fija: !metaDe(id).fija });
+    render();
+    return;
+  }
+  var chk = t.closest('[data-chk]');
+  if(chk){
+    marcarItemTarjeta(id, +chk.getAttribute('data-chk'));
+    return;
+  }
+  var tag = t.closest('[data-tag]');
+  if(tag){
+    setEtiqueta(tag.getAttribute('data-tag'));
+    return;
+  }
+  if(NOTA_INDEX[id]) openNotaEditor(NOTA_INDEX[id]);
+});
+
+function marcarItemTarjeta(id, idx){
+  var n = NOTA_INDEX[id];
+  if(!n) return;
+  var lista = parseLista(n.texto);
+  if(!lista || !lista[idx]) return;
+  lista[idx].ok = !lista[idx].ok;
+  var copia = {};
+  Object.keys(n).forEach(function(k){ copia[k] = n[k]; });
+  copia.texto = listaAHtml(lista);
+  NOTAS_PROPIO.notas[id] = copia;
+  NOTAS_PROPIO.updated = new Date().toISOString();
+  saveNotasPropio();
+  render();
+}
+
+/* ===================== NOTAS: ARRASTRAR PARA ORDENAR ===================== */
+function startNotaDrag(e){
+  e.preventDefault();
+  e.stopPropagation();
+  var wrap = e.currentTarget.closest('.nwrap');
+  if(!wrap) return;
+  var grid = wrap.parentElement;
+  var nota = wrap.firstElementChild;
+  var destino = null;
+  nota.classList.add('llevando');
+  document.body.style.userSelect = 'none';
+
+  function limpiarDestino(){
+    if(destino) destino.firstElementChild.classList.remove('destino');
+    destino = null;
+  }
+  function onMove(ev){
+    if(ev.clientY < 90) window.scrollBy(0, -10);
+    else if(ev.clientY > window.innerHeight - 60) window.scrollBy(0, 10);
+    var el = document.elementFromPoint(ev.clientX, ev.clientY);
+    var w = el && el.closest ? el.closest('.nwrap') : null;
+    if(w && w !== wrap && w.parentElement === grid){
+      if(w !== destino){
+        limpiarDestino();
+        destino = w;
+        w.firstElementChild.classList.add('destino');
+      }
+    } else {
+      limpiarDestino();
+    }
+  }
+  function onUp(){
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    document.removeEventListener('pointercancel', onUp);
+    nota.classList.remove('llevando');
+    document.body.style.userSelect = '';
+    if(destino){
+      var kids = Array.prototype.slice.call(grid.children);
+      var from = kids.indexOf(wrap), to = kids.indexOf(destino);
+      if(from < to) grid.insertBefore(wrap, destino.nextSibling);
+      else grid.insertBefore(wrap, destino);
+      limpiarDestino();
+      guardarOrdenNotasDesdeDom();
+      packMosaic();
+    }
+  }
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+  document.addEventListener('pointercancel', onUp);
+}
+
+// Mismo criterio que el orden manual existente: las notas visibles se recolocan
+// en el orden completo sin tocar la posición de las que están ocultas por el filtro.
+function guardarOrdenNotasDesdeDom(){
+  var visibleIds = Array.prototype.slice.call(document.querySelectorAll('#content .nwrap')).map(function(el){ return el.dataset.id; });
+  var fullOrder = loadOrder('notas');
+  if(!fullOrder.length){
+    fullOrder = ordenarManual('notas', getMerged('notas')).map(function(n){ return String(n.id); });
+  }
+  getMerged('notas').forEach(function(n){
+    if(fullOrder.indexOf(String(n.id)) === -1) fullOrder.unshift(String(n.id));
+  });
+  var indices = [];
+  visibleIds.forEach(function(id){
+    var idx = fullOrder.indexOf(id);
+    if(idx !== -1) indices.push(idx);
+  });
+  var insertPos = indices.length ? Math.min.apply(null, indices) : 0;
+  fullOrder = fullOrder.filter(function(id){ return visibleIds.indexOf(id) === -1; });
+  if(insertPos > fullOrder.length) insertPos = fullOrder.length;
+  Array.prototype.splice.apply(fullOrder, [insertPos, 0].concat(visibleIds));
+  saveOrder('notas', fullOrder);
+}
+
+/* ===================== NOTAS: EDITOR A PANTALLA COMPLETA ===================== */
+var NE = null;
+
+function openNotaEditor(existing){
+  var n = existing || null;
+  var meta = n ? metaDe(n.id) : {};
+  var lista = n ? parseLista(n.texto) : null;
+  NE = {
+    original: n,
+    isNew: !n,
+    dirty: false,
+    lista: !!lista,
+    items: lista || [],
+    color: COLORES_NOTA.indexOf(meta.color) !== -1 ? meta.color : 'bone',
+    fija: !!meta.fija,
+    metaCambiada: false
+  };
+  var puedeBorrar = n && esLocal('notas', n.id);
+
+  var fv = document.createElement('div');
+  fv.className = 'fullview neditor';
+  fv.id = 'editorView';
+  fv.style.background = 'var(--nc-' + NE.color + ')';
+  fv.innerHTML =
+    '<div class="ne-top">' +
+      '<button class="ne-ico" data-a="back" aria-label="Volver">←</button>' +
+      '<span class="ne-sp"></span>' +
+      '<button class="ne-ico" data-a="lista" aria-pressed="' + NE.lista + '" aria-label="Lista con casillas">☑</button>' +
+      '<button class="ne-ico" data-a="pin" aria-pressed="' + NE.fija + '" aria-label="Fijar">' + ICO_PIN + '</button>' +
+      (puedeBorrar ? '<button class="ne-ico borrar" data-a="del" aria-label="Borrar">🗑</button>' : '') +
+      '<button class="ne-ico ok" data-a="save" aria-label="Guardar">✓</button>' +
+    '</div>' +
+    '<input class="ne-tit" id="neTit" placeholder="Título" value="' + escapeHtml(n ? n.titulo : '') + '">' +
+    '<div class="ne-tools" id="neTools">' +
+      '<button class="b" data-cmd="bold">B</button>' +
+      '<button class="i" data-cmd="italic">I</button>' +
+      '<button class="u" data-cmd="underline">U</button>' +
+      '<button class="s" data-cmd="strikeThrough">S</button>' +
+      '<span class="ne-sepv"></span>' +
+      '<button data-cmd="insertUnorderedList">• —</button>' +
+      '<button data-cmd="insertOrderedList">1.</button>' +
+    '</div>' +
+    '<div class="ne-body" id="neBody" contenteditable="true" data-ph="Escribe aquí…"></div>' +
+    '<div class="ne-items" id="neItems"></div>' +
+    '<div class="ne-foot">' +
+      '<input id="neTags" placeholder="#etiquetas" value="' + escapeHtml(n ? (n.etiquetas || []).map(function(t){ return '#' + t; }).join(' ') : '') + '">' +
+      '<input id="neFecha" placeholder="dd/mm/aaaa" value="' + escapeHtml(n ? (n.fecha || '') : todayStr()) + '">' +
+      '<div class="ne-cols" id="neCols">' + COLORES_NOTA.map(function(c){
+        return '<button data-c="' + c + '" aria-pressed="' + (NE.color === c) + '" style="background:var(--nc-' + c + ')" aria-label="' + c + '"></button>';
+      }).join('') + '</div>' +
+    '</div>';
+  document.body.appendChild(fv);
+
+  var body = document.getElementById('neBody');
+  if(!NE.lista && n) body.innerHTML = contenidoHtml(n.texto);
+  try{ document.execCommand('defaultParagraphSeparator', false, 'p'); }catch(e){}
+  pintarModoNE();
+
+  var marcar = function(){ NE.dirty = true; };
+  document.getElementById('neTit').addEventListener('input', marcar);
+  body.addEventListener('input', marcar);
+  document.getElementById('neTags').addEventListener('input', marcar);
+  document.getElementById('neFecha').addEventListener('input', marcar);
+
+  // Botones de formato: no quitan el foco del texto
+  fv.querySelectorAll('[data-cmd]').forEach(function(b){
+    b.addEventListener('pointerdown', function(ev){ ev.preventDefault(); });
+    b.addEventListener('mousedown', function(ev){ ev.preventDefault(); });
+    b.addEventListener('click', function(){
+      document.execCommand(b.getAttribute('data-cmd'), false, null);
+      NE.dirty = true;
+    });
+  });
+  fv.querySelectorAll('#neCols [data-c]').forEach(function(b){
+    b.addEventListener('click', function(){
+      NE.color = b.getAttribute('data-c');
+      NE.metaCambiada = true;
+      fv.style.background = 'var(--nc-' + NE.color + ')';
+      fv.querySelectorAll('#neCols [data-c]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    });
+  });
+  fv.querySelector('.ne-top').addEventListener('click', function(ev){
+    var b = ev.target.closest('[data-a]');
+    if(!b) return;
+    var a = b.getAttribute('data-a');
+    if(a === 'back' || a === 'save') cerrarNotaEditor(true);
+    else if(a === 'pin'){
+      NE.fija = !NE.fija; NE.metaCambiada = true;
+      b.setAttribute('aria-pressed', NE.fija ? 'true' : 'false');
+    }
+    else if(a === 'lista') cambiarModoListaNE(b);
+    else if(a === 'del') eliminarItem('notas', NE.original.id);
+  });
+
+  if(!n) setTimeout(function(){ var t = document.getElementById('neTit'); if(t) t.focus(); }, 60);
+}
+
+function pintarModoNE(){
+  var body = document.getElementById('neBody');
+  var tools = document.getElementById('neTools');
+  var cont = document.getElementById('neItems');
+  if(NE.lista){
+    body.style.display = 'none';
+    tools.style.display = 'none';
+    cont.style.display = '';
+    pintarItemsNE();
+  } else {
+    body.style.display = '';
+    tools.style.display = '';
+    cont.style.display = 'none';
+    cont.innerHTML = '';
+  }
+}
+
+function pintarItemsNE(focusIdx){
+  var cont = document.getElementById('neItems');
+  cont.innerHTML = NE.items.map(function(it, i){
+    return '<div class="it-fila' + (it.ok ? ' ok' : '') + '" data-i="' + i + '">' +
+      '<button class="caja" data-k="chk">' + (it.ok ? '✓' : '') + '</button>' +
+      '<input value="' + escapeHtml(it.txt) + '" placeholder="Elemento">' +
+      '<button class="it-quitar" data-k="del" aria-label="Quitar">✕</button>' +
+    '</div>';
+  }).join('') + '<button class="it-add" data-k="add"><b>+</b> Añadir elemento</button>';
+
+  cont.querySelectorAll('.it-fila').forEach(function(f){
+    var i = +f.getAttribute('data-i');
+    var inp = f.querySelector('input');
+    inp.addEventListener('input', function(){ NE.items[i].txt = inp.value; NE.dirty = true; });
+    inp.addEventListener('keydown', function(ev){
+      if(ev.key === 'Enter'){
+        ev.preventDefault();
+        NE.items.splice(i + 1, 0, { txt: '', ok: false });
+        NE.dirty = true;
+        pintarItemsNE(i + 1);
+      } else if(ev.key === 'Backspace' && inp.value === '' && NE.items.length > 1){
+        ev.preventDefault();
+        NE.items.splice(i, 1);
+        NE.dirty = true;
+        pintarItemsNE(Math.max(0, i - 1));
+      }
+    });
+    f.querySelector('[data-k="chk"]').addEventListener('click', function(){
+      NE.items[i].ok = !NE.items[i].ok; NE.dirty = true; pintarItemsNE();
+    });
+    f.querySelector('[data-k="del"]').addEventListener('click', function(){
+      NE.items.splice(i, 1); NE.dirty = true; pintarItemsNE();
+    });
+  });
+  cont.querySelector('[data-k="add"]').addEventListener('click', function(){
+    NE.items.push({ txt: '', ok: false }); NE.dirty = true; pintarItemsNE(NE.items.length - 1);
+  });
+  if(focusIdx !== undefined){
+    var target = cont.querySelectorAll('.it-fila input')[focusIdx];
+    if(target) target.focus();
+  }
+}
+
+function cambiarModoListaNE(btn){
+  var body = document.getElementById('neBody');
+  if(!NE.lista){
+    var lineas = textoPlano(body.innerHTML).split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+    NE.items = lineas.map(function(l){
+      return { txt: l.replace(/^[•\-\*☐☑]\s*/, ''), ok: /^☑/.test(l) };
+    });
+    if(!NE.items.length) NE.items = [{ txt: '', ok: false }];
+    NE.lista = true;
+  } else {
+    body.innerHTML = NE.items.filter(function(i){ return i.txt.trim(); }).map(function(i){
+      return '<p>' + escapeHtml(i.txt.trim()) + '</p>';
+    }).join('');
+    NE.lista = false;
+  }
+  NE.dirty = true;
+  btn.setAttribute('aria-pressed', NE.lista ? 'true' : 'false');
+  pintarModoNE();
+  if(NE.lista) pintarItemsNE(NE.items.length - 1);
+}
+
+function textoActualNE(){
+  if(NE.lista) return listaAHtml(NE.items);
+  var html = document.getElementById('neBody').innerHTML;
+  if(!textoPlano(html)) return '';
+  var limpio = sanitizeHtml(html);
+  // Siempre como HTML (así Libreta lo interpreta igual y no se escapa dos veces)
+  return esHtml(limpio) ? limpio : '<p>' + limpio + '</p>';
+}
+
+function cerrarNotaEditor(guardar){
+  var fv = document.getElementById('editorView');
+  if(!NE){ if(fv) fv.remove(); return; }
+  var id = NE.original ? NE.original.id : null;
+
+  if(guardar && (NE.dirty || NE.isNew)){
+    var titulo = document.getElementById('neTit').value.trim();
+    var texto = textoActualNE();
+    if(NE.isNew && !titulo && !texto){
+      // nota nueva vacía: se descarta sin preguntar
+    } else if(NE.dirty){
+      id = id || generarId('notas');
+      var item = {};
+      if(NE.original) Object.keys(NE.original).forEach(function(k){ item[k] = NE.original[k]; });
+      item.id = id;
+      item.titulo = titulo;
+      item.texto = texto;
+      item.fecha = document.getElementById('neFecha').value.trim() || todayStr();
+      item.etiquetas = splitEtiquetas(document.getElementById('neTags').value);
+      NOTAS_PROPIO.notas[id] = item;
+      NOTAS_PROPIO.updated = new Date().toISOString();
+      saveNotasPropio();
+    } else {
+      id = null;
+    }
+  }
+  // Color y fijada se guardan aparte: no convierten una nota de Libreta en "editada"
+  if(guardar && id && (NE.metaCambiada || NE.isNew)){
+    setMeta(id, { color: NE.color, fija: NE.fija });
+  }
+  NE = null;
+  if(fv) fv.remove();
+  render();
+}
+
 /* ===================== INIT ===================== */
+try{ aplicarTema(localStorage.getItem(THEME_KEY) === 'light' ? 'light' : 'dark'); }catch(e){}
 cargarDesdeStorage();
+cargarMeta();
 render();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ packMosaic(); });
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){
