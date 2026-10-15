@@ -128,8 +128,11 @@
   .card .title{ font-size:13.5px; font-weight:600; margin:0 0 4px; color:var(--ink);}
   .card .body{
     font-size:12.5px; line-height:1.5; color:var(--ink-body); word-break:break-word;
-    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    max-height:57px; overflow:hidden;
   }
+  .card .body p, .card .body div, .fv-body p, .fv-body div{ margin:0; }
+  .card .body ul, .card .body ol{ margin:0; padding-left:18px; }
+  .fv-body ul, .fv-body ol{ margin:4px 0; padding-left:22px; }
   .card .meta{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; flex-wrap:wrap; gap:4px;}
   .card .date{ font-size:10px; color:var(--ink-dim); font-family:var(--mono); }
   .card .chips{ display:flex; gap:4px; flex-wrap:wrap; }
@@ -196,7 +199,7 @@
   .fv-sub{ font-size:10.5px; color:var(--ink-dim); font-family:var(--mono); margin-top:1px;}
   .fv-scroll{ flex:1; overflow-y:auto; padding:18px 18px 40px; }
   .fv-title{ font-size:19px; font-weight:700; margin:0 0 14px; line-height:1.35; }
-  .fv-body{ font-size:15px; line-height:1.7; color:var(--ink-body-2); white-space:pre-wrap; word-break:break-word; }
+  .fv-body{ font-size:15px; line-height:1.7; color:var(--ink-body-2); word-break:break-word; }
   .fv-meta{ display:flex; flex-wrap:wrap; gap:6px; margin-top:22px; padding-top:14px; border-top:1px solid var(--line); }
   .fv-chip{
     font-size:11px; font-family:var(--mono); padding:4px 9px; border-radius:6px;
@@ -376,6 +379,11 @@
     border-radius:8px; padding:7px 9px; font-size:13px; outline:none; }
   .ne-foot #neTags{ width:150px; } .ne-foot #neFecha{ width:104px; font-family:var(--mono); }
   .ne-cols{ display:flex; gap:7px; flex:none; }
+  /* editor de Información: campos + texto en una sola zona con scroll */
+  .ie-scroll{ flex:1; overflow-y:auto; padding:0 18px 24px; }
+  .ie-scroll .ne-tit{ padding:4px 0 8px; }
+  .ie-scroll .ne-body{ overflow:visible; padding:10px 0 24px; min-height:160px; }
+  .ie-scroll .ek-metafield{ border-bottom-color:var(--line); }
   .ne-cols button{ width:26px; height:26px; border-radius:50%; border:1px solid var(--pill-line); padding:0; }
   .ne-cols button[aria-pressed="true"]{ outline:2px solid var(--ink); outline-offset:2px; }
 </style>
@@ -391,7 +399,7 @@
     <div class="brand-left">
       <div class="badge"></div>
       <div>
-        <h1>NOTAS <span class="version-tag">v3</span></h1>
+        <h1>NOTAS <span class="version-tag">v4</span></h1>
         <div class="updated" id="updatedLabel">sin datos cargados</div>
       </div>
     </div>
@@ -709,7 +717,7 @@ function procesarLibro(workbook){
           poblacion: (o.POBLACION || '').toString().trim(),
           sistema: (o.SISTEMA || '').toString().trim(),
           tipoDato: limpiarTexto(o.TIPO_DATO || ''),
-          informacion: limpiarTexto(o.INFORMACION || ''),
+          informacion: textoNotaImportado(o.INFORMACION),
           etiquetas: splitEtiquetas(o.ETIQUETAS)
         };
       });
@@ -1072,7 +1080,7 @@ function cardHtml(kind, item){
     if(item.sistema) chips = [item.sistema].concat(chips);
   }
 
-  var bodyEsc = escapeHtml(bodyText || '');
+  var bodyEsc = contenidoHtml(bodyText || '');
   var cid = kind + '-' + item.id;
 
   var head = '';
@@ -1120,7 +1128,7 @@ function openFullView(cid){
     '<div class="fv-header"><button class="fv-back" onclick="this.closest(\'.fullview\').remove()">←</button>' + headTextHtml + pencilBtn + trashBtn + '</div>' +
     '<div class="fv-scroll">' +
       '<h2 class="fv-title">' + escapeHtml(item.title) + '</h2>' +
-      '<div class="fv-body">' + escapeHtml(item.body) + '</div>' +
+      '<div class="fv-body">' + contenidoHtml(item.body) + '</div>' +
       (item.date ? '<div class="fv-date">' + escapeHtml(item.date) + '</div>' : '') +
       chipsHtml +
     '</div>';
@@ -1146,6 +1154,7 @@ function openEditorForCurrentTab(){
 
 function openEditor(kind, existing){
   if(kind === 'notas') return openNotaEditor(existing);
+  if(kind === 'info') return openInfoEditor(existing);
   var isNew = !existing;
   var item = existing || null;
 
@@ -1287,7 +1296,7 @@ function render(){
     kind = 'info';
     items = getMerged('info').filter(function(n){
       if(STATE.subEntidad !== 'Todo' && (n.entidad || '') !== STATE.subEntidad) return false;
-      return matchQuery([n.entidad, n.codigo, n.poblacion, n.sistema, n.tipoDato, n.informacion, n.etiquetas.join(' ')]);
+      return matchQuery([n.entidad, n.codigo, n.poblacion, n.sistema, n.tipoDato, textoPlano(n.informacion), n.etiquetas.join(' ')]);
     });
     items = ordenarManual('info', items);
     reorderActive = (!STATE.query && items.length > 1);
@@ -1753,6 +1762,112 @@ function cerrarNotaEditor(guardar){
     setMeta(id, { color: NE.color, fija: NE.fija });
   }
   NE = null;
+  if(fv) fv.remove();
+  render();
+}
+
+/* ===================== INFORMACIÓN: EDITOR A PANTALLA COMPLETA ===================== */
+var IE = null;
+
+function openInfoEditor(existing){
+  var it = existing || null;
+  IE = { original: it, isNew: !it, dirty: false };
+  var puedeBorrar = it && esLocal('info', it.id);
+  var campo = function(id, label, value){
+    return '<div class="ek-metafield"><label>' + label + '</label><input id="' + id + '" value="' + escapeHtml(value || '') + '" placeholder="—"></div>';
+  };
+
+  var fv = document.createElement('div');
+  fv.className = 'fullview neditor';
+  fv.id = 'editorView';
+  fv.innerHTML =
+    '<div class="ne-top">' +
+      '<button class="ne-ico" data-a="back" aria-label="Volver">←</button>' +
+      '<span class="ne-sp"></span>' +
+      (puedeBorrar ? '<button class="ne-ico borrar" data-a="del" aria-label="Borrar">🗑</button>' : '') +
+      '<button class="ne-ico ok" data-a="save" aria-label="Guardar">✓</button>' +
+    '</div>' +
+    '<div class="ne-tools">' +
+      '<button class="b" data-cmd="bold">B</button>' +
+      '<button class="i" data-cmd="italic">I</button>' +
+      '<button class="u" data-cmd="underline">U</button>' +
+      '<button class="s" data-cmd="strikeThrough">S</button>' +
+      '<span class="ne-sepv"></span>' +
+      '<button data-cmd="insertUnorderedList">• —</button>' +
+      '<button data-cmd="insertOrderedList">1.</button>' +
+    '</div>' +
+    '<div class="ie-scroll">' +
+      '<input class="ne-tit" id="ieTipo" placeholder="Tipo de dato (ej. Contraseña)" value="' + escapeHtml(it ? it.tipoDato : '') + '">' +
+      campo('ieEntidad', 'Entidad', it ? it.entidad : '') +
+      campo('ieCodigo', 'Código', it ? it.codigo : '') +
+      campo('iePoblacion', 'Población', it ? it.poblacion : '') +
+      campo('ieSistema', 'Sistema', it ? it.sistema : '') +
+      '<div class="ne-body" id="ieBody" contenteditable="true" data-ph="Escribe la información aquí…"></div>' +
+    '</div>' +
+    '<div class="ne-foot">' +
+      '<input id="ieTags" placeholder="#etiquetas" style="width:170px" value="' + escapeHtml(it ? (it.etiquetas || []).map(function(t){ return '#' + t; }).join(' ') : '') + '">' +
+      '<input id="ieFecha" placeholder="dd/mm/aaaa" style="width:104px;font-family:var(--mono)" value="' + escapeHtml(it ? (it.fecha || '') : todayStr()) + '">' +
+    '</div>';
+  document.body.appendChild(fv);
+
+  var body = document.getElementById('ieBody');
+  if(it) body.innerHTML = contenidoHtml(it.informacion);
+  try{ document.execCommand('defaultParagraphSeparator', false, 'p'); }catch(e){}
+
+  var marcar = function(){ IE.dirty = true; };
+  ['ieTipo','ieEntidad','ieCodigo','iePoblacion','ieSistema','ieBody','ieTags','ieFecha'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', marcar);
+  });
+  fv.querySelectorAll('[data-cmd]').forEach(function(b){
+    b.addEventListener('pointerdown', function(ev){ ev.preventDefault(); });
+    b.addEventListener('mousedown', function(ev){ ev.preventDefault(); });
+    b.addEventListener('click', function(){
+      document.execCommand(b.getAttribute('data-cmd'), false, null);
+      IE.dirty = true;
+    });
+  });
+  fv.querySelector('.ne-top').addEventListener('click', function(ev){
+    var b = ev.target.closest('[data-a]');
+    if(!b) return;
+    var a = b.getAttribute('data-a');
+    if(a === 'back' || a === 'save') cerrarInfoEditor();
+    else if(a === 'del'){ IE = null; eliminarItem('info', it.id); }
+  });
+
+  if(!it) setTimeout(function(){ var t = document.getElementById('ieTipo'); if(t) t.focus(); }, 60);
+}
+
+function cerrarInfoEditor(){
+  var fv = document.getElementById('editorView');
+  if(!IE){ if(fv) fv.remove(); return; }
+  if(IE.dirty){
+    var val = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    var html = document.getElementById('ieBody').innerHTML;
+    var informacion = '';
+    if(textoPlano(html)){
+      informacion = sanitizeHtml(html);
+      if(!esHtml(informacion)) informacion = '<p>' + informacion + '</p>';
+    }
+    var item = {};
+    if(IE.original) Object.keys(IE.original).forEach(function(k){ item[k] = IE.original[k]; });
+    item.id = IE.original ? IE.original.id : generarId('info');
+    item.fecha = val('ieFecha') || todayStr();
+    item.entidad = val('ieEntidad');
+    item.codigo = val('ieCodigo');
+    item.poblacion = val('iePoblacion');
+    item.sistema = val('ieSistema');
+    item.tipoDato = val('ieTipo');
+    item.informacion = informacion;
+    item.etiquetas = splitEtiquetas(val('ieTags'));
+    var vacia = !item.entidad && !item.codigo && !item.poblacion && !item.sistema && !item.tipoDato && !item.informacion;
+    if(vacia && !IE.isNew){ alert('Rellena al menos un campo antes de guardar.'); return; }
+    if(!vacia){
+      NOTAS_PROPIO.info[item.id] = item;
+      NOTAS_PROPIO.updated = new Date().toISOString();
+      saveNotasPropio();
+    }
+  }
+  IE = null;
   if(fv) fv.remove();
   render();
 }
