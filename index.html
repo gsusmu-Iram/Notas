@@ -379,6 +379,23 @@
     border-radius:8px; padding:7px 9px; font-size:13px; outline:none; }
   .ne-foot #neTags{ width:150px; } .ne-foot #neFecha{ width:104px; font-family:var(--mono); }
   .ne-cols{ display:flex; gap:7px; flex:none; }
+  /* ===== Fotos ===== */
+  .ie-fotos{ padding:4px 0 10px; }
+  .fotos-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+  .fotos-grid:empty{ display:none; }
+  .fv-fotos{ margin-top:18px; }
+  .foto-th{ position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; background:var(--surface-2);
+    border:1px solid var(--line); cursor:pointer; }
+  .foto-th img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .foto-x{ position:absolute; top:4px; right:4px; width:24px; height:24px; border-radius:50%; border:none;
+    background:rgba(0,0,0,.6); color:#fff; font-size:12px; display:grid; place-items:center; padding:0; }
+  .foto-add{ margin-top:10px; background:var(--surface); border:1px dashed var(--ink-dim); color:var(--ink);
+    border-radius:10px; padding:10px 14px; font-size:14px; width:100%; }
+  .foto-visor{ position:fixed; inset:0; z-index:90; background:#000; display:flex; align-items:center; justify-content:center; }
+  .foto-visor img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .foto-visor-x{ position:absolute; top:calc(12px + env(safe-area-inset-top)); right:12px; width:38px; height:38px;
+    border-radius:50%; border:none; background:rgba(255,255,255,.18); color:#fff; font-size:16px; }
+  .aviso-copia{ color:var(--amber); }
   /* editor de Información: campos + texto en una sola zona con scroll */
   .ie-scroll{ flex:1; overflow-y:auto; padding:0 18px 24px; }
   .ie-scroll .ne-tit{ padding:4px 0 8px; }
@@ -399,7 +416,7 @@
     <div class="brand-left">
       <div class="badge"></div>
       <div>
-        <h1>NOTAS <span class="version-tag">v4</span></h1>
+        <h1>NOTAS <span class="version-tag">v5</span></h1>
         <div class="updated" id="updatedLabel">sin datos cargados</div>
       </div>
     </div>
@@ -427,6 +444,7 @@
 
 <input type="file" id="fileInputLibreta" accept=".xlsx,.xls">
 <input type="file" id="fileInputPropio" accept=".xlsx,.xls">
+<input type="file" id="fileInputCopia" accept=".json,application/json" style="display:none">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
@@ -859,6 +877,10 @@ function openExcelModal(){
       '<button class="excel-option" onclick="exportarExcelPropio()"><span class="eo-icon">⬇️</span><span class="eo-text">Exportar Excel<small>Descarga todo lo cargado: Libreta + tus notas propias</small></span></button>' +
       '<button class="excel-option" onclick="document.getElementById(\'fileInputPropio\').click()"><span class="eo-icon">📥</span><span class="eo-text">Excel notas<small>Restaura un Excel propio ya exportado</small></span></button>' +
       '<button class="excel-option" onclick="document.getElementById(\'fileInputLibreta\').click()"><span class="eo-icon">📚</span><span class="eo-text">Excel libreta<small>Importa el Excel maestro de PycLibreta</small></span></button>' +
+      '<h3 style="margin-top:16px">COPIA COMPLETA (CON FOTOS)</h3>' +
+      (puedeCompartirCopia() ? '<button class="excel-option" onclick="exportarCopiaCompleta(true)"><span class="eo-icon">📤</span><span class="eo-text">Compartir copia<small>Enviar a Drive, correo, chat… (archivo .json)</small></span></button>' : '') +
+      '<button class="excel-option" onclick="exportarCopiaCompleta(false)"><span class="eo-icon">💾</span><span class="eo-text">Descargar copia<small>Guarda un .json en Descargas con todo, fotos incluidas</small></span></button>' +
+      '<button class="excel-option" onclick="document.getElementById(\'fileInputCopia\').click()"><span class="eo-icon">♻️</span><span class="eo-text">Restaurar copia<small>Deja la app como estaba en ese .json</small></span></button>' +
       '<button class="excel-cancel" onclick="closeExcelModal()">Cancelar</button>' +
     '</div>';
   document.body.appendChild(bg);
@@ -1095,7 +1117,8 @@ function cardHtml(kind, item){
   out += head;
   out += '<p class="title">' + escapeHtml(titleLine) + (local ? ' <span class="local-badge">✎</span>' : '') + '</p>';
   out += '<div class="body" id="body-' + cid + '">' + bodyEsc + '</div>';
-  out += '<div class="meta"><span class="date">' + escapeHtml(dateStr || '') + '</span>';
+  var nFotos = (kind === 'info' && FOTOS_COUNT[item.id]) ? ' · 📷 ' + FOTOS_COUNT[item.id] : '';
+  out += '<div class="meta"><span class="date">' + escapeHtml(dateStr || '') + nFotos + '</span>';
   if(chips && chips.length){
     out += '<span class="chips">' + chips.slice(0,3).map(function(c){ return '<span class="chip">#' + escapeHtml(c) + '</span>'; }).join('') + '</span>';
   }
@@ -1129,10 +1152,12 @@ function openFullView(cid){
     '<div class="fv-scroll">' +
       '<h2 class="fv-title">' + escapeHtml(item.title) + '</h2>' +
       '<div class="fv-body">' + contenidoHtml(item.body) + '</div>' +
+      (item.kind === 'info' ? '<div class="fotos-grid fv-fotos" id="fvFotos"></div>' : '') +
       (item.date ? '<div class="fv-date">' + escapeHtml(item.date) + '</div>' : '') +
       chipsHtml +
     '</div>';
   document.body.appendChild(fv);
+  if(item.kind === 'info') pintarFotosLectura(item.id);
 }
 
 function closeFullViewThenEdit(cid){
@@ -1216,6 +1241,9 @@ function eliminarItem(kind, id){
 
   var propio = (kind === 'notas' ? NOTAS_PROPIO.notas : NOTAS_PROPIO.info);
   if(propio && Object.prototype.hasOwnProperty.call(propio, id)) delete propio[id];
+  if(kind === 'info' && !enLibreta && FOTOS_COUNT[id]){
+    fotosBorrarDe(id).then(function(){ return contarFotos(); }).then(render).catch(function(){});
+  }
   if(kind === 'notas' && !enLibreta && META[id]){ delete META[id]; guardarMeta(); }
   if(kind === 'notas') NE = null;
   NOTAS_PROPIO.updated = new Date().toISOString();
@@ -1268,7 +1296,7 @@ function guardarEditor(kind, existingId){
 
 /* ===================== RENDER PRINCIPAL ===================== */
 function render(){
-  document.getElementById('updatedLabel').textContent = formatUpdated();
+  document.getElementById('updatedLabel').innerHTML = escapeHtml(formatUpdated()) + avisoCopiaHtml();
   renderSubtabs();
 
   var contentEl = document.getElementById('content');
@@ -1771,7 +1799,7 @@ var IE = null;
 
 function openInfoEditor(existing){
   var it = existing || null;
-  IE = { original: it, isNew: !it, dirty: false };
+  IE = { original: it, isNew: !it, dirty: false, fotosExist: [], fotosNuevas: [], fotosQuitar: [] };
   var puedeBorrar = it && esLocal('info', it.id);
   var campo = function(id, label, value){
     return '<div class="ek-metafield"><label>' + label + '</label><input id="' + id + '" value="' + escapeHtml(value || '') + '" placeholder="—"></div>';
@@ -1803,6 +1831,10 @@ function openInfoEditor(existing){
       campo('iePoblacion', 'Población', it ? it.poblacion : '') +
       campo('ieSistema', 'Sistema', it ? it.sistema : '') +
       '<div class="ne-body" id="ieBody" contenteditable="true" data-ph="Escribe la información aquí…"></div>' +
+      '<div class="ie-fotos"><div class="fotos-grid" id="ieFotos"></div>' +
+        '<button class="foto-add" id="ieFotoAdd">📷 Añadir foto</button>' +
+        '<input type="file" id="ieFotoInput" accept="image/*" multiple style="display:none">' +
+      '</div>' +
     '</div>' +
     '<div class="ne-foot">' +
       '<input id="ieTags" placeholder="#etiquetas" style="width:170px" value="' + escapeHtml(it ? (it.etiquetas || []).map(function(t){ return '#' + t; }).join(' ') : '') + '">' +
@@ -1834,12 +1866,14 @@ function openInfoEditor(existing){
     else if(a === 'del'){ IE = null; eliminarItem('info', it.id); }
   });
 
+  iniciarFotosIE(it);
   if(!it) setTimeout(function(){ var t = document.getElementById('ieTipo'); if(t) t.focus(); }, 60);
 }
 
 function cerrarInfoEditor(){
   var fv = document.getElementById('editorView');
   if(!IE){ if(fv) fv.remove(); return; }
+  var idFinal = IE.original ? IE.original.id : null;
   if(IE.dirty){
     var val = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
     var html = document.getElementById('ieBody').innerHTML;
@@ -1860,23 +1894,280 @@ function cerrarInfoEditor(){
     item.informacion = informacion;
     item.etiquetas = splitEtiquetas(val('ieTags'));
     var vacia = !item.entidad && !item.codigo && !item.poblacion && !item.sistema && !item.tipoDato && !item.informacion;
+    if(vacia && IE.isNew && IE.fotosNuevas.length) vacia = false; // ficha nueva solo con fotos
     if(vacia && !IE.isNew){ alert('Rellena al menos un campo antes de guardar.'); return; }
     if(!vacia){
       NOTAS_PROPIO.info[item.id] = item;
       NOTAS_PROPIO.updated = new Date().toISOString();
       saveNotasPropio();
+      idFinal = item.id;
     }
   }
+  var nuevas = IE.fotosNuevas, quitar = IE.fotosQuitar;
   IE = null;
   if(fv) fv.remove();
   render();
+  // Las fotos van aparte: no convierten una ficha de Libreta en "editada"
+  if(idFinal && (nuevas.length || quitar.length)){
+    aplicarCambiosFotos(idFinal, nuevas, quitar).then(function(){ return contarFotos(); }).then(render)
+      .catch(function(err){ alert('No se pudieron guardar las fotos: ' + err.message); });
+  }
 }
+
+/* ===================== FOTOS (IndexedDB, solo en este móvil) ===================== */
+// Las fotos NO van en el Excel (no caben en una celda). Se guardan aparte, por id de ficha,
+// y viajan solo en la "copia completa" (.json).
+var FOTOS_DB = 'notasapp_fotos';
+var FOTOS_COUNT = {};
+var _dbPromise = null;
+
+function abrirDB(){
+  if(_dbPromise) return _dbPromise;
+  _dbPromise = new Promise(function(resolve, reject){
+    if(!window.indexedDB){ reject(new Error('Este navegador no permite guardar fotos')); return; }
+    var req = indexedDB.open(FOTOS_DB, 1);
+    req.onupgradeneeded = function(){
+      var db = req.result;
+      if(!db.objectStoreNames.contains('fotos')){
+        var st = db.createObjectStore('fotos', { keyPath: 'id' });
+        st.createIndex('infoId', 'infoId', { unique: false });
+      }
+    };
+    req.onsuccess = function(){ resolve(req.result); };
+    req.onerror = function(){ reject(req.error || new Error('No se pudo abrir el almacén de fotos')); };
+  });
+  _dbPromise.catch(function(){ _dbPromise = null; });
+  return _dbPromise;
+}
+function _tx(modo, fn){
+  return abrirDB().then(function(db){
+    return new Promise(function(resolve, reject){
+      var tx = db.transaction('fotos', modo);
+      var st = tx.objectStore('fotos');
+      var out = fn(st);
+      tx.oncomplete = function(){ resolve(out && out.result !== undefined ? out.result : out); };
+      tx.onerror = function(){ reject(tx.error || new Error('Error guardando fotos')); };
+      tx.onabort = function(){ reject(tx.error || new Error('No hay espacio para guardar las fotos')); };
+    });
+  });
+}
+function fotosTodas(){ return _tx('readonly', function(st){ return st.getAll(); }); }
+function fotosDe(infoId){
+  return _tx('readonly', function(st){ return st.index('infoId').getAll(infoId); }).then(function(l){
+    return (l || []).sort(function(a,b){ return a.fecha < b.fecha ? -1 : 1; });
+  });
+}
+function aplicarCambiosFotos(infoId, nuevas, quitarIds){
+  return _tx('readwrite', function(st){
+    quitarIds.forEach(function(id){ st.delete(id); });
+    nuevas.forEach(function(f){ f.infoId = infoId; st.put(f); });
+  });
+}
+function fotosBorrarDe(infoId){
+  return fotosDe(infoId).then(function(l){
+    return aplicarCambiosFotos(infoId, [], l.map(function(f){ return f.id; }));
+  });
+}
+function contarFotos(){
+  return fotosTodas().then(function(l){
+    var c = {};
+    (l || []).forEach(function(f){ c[f.infoId] = (c[f.infoId] || 0) + 1; });
+    FOTOS_COUNT = c;
+  });
+}
+function idFoto(){ return 'F_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7); }
+
+// Reduce la foto a 1280 px como máximo (≈150–250 KB) antes de guardarla
+function comprimirFoto(file){
+  return new Promise(function(resolve, reject){
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function(){
+      var w = img.naturalWidth, h = img.naturalHeight;
+      var r = Math.min(1, 1280 / Math.max(w, h));
+      var c = document.createElement('canvas');
+      c.width = Math.round(w * r); c.height = Math.round(h * r);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', 0.75));
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')); };
+    img.src = url;
+  });
+}
+
+// --- Fotos dentro del editor de Información ---
+function iniciarFotosIE(it){
+  var input = document.getElementById('ieFotoInput');
+  document.getElementById('ieFotoAdd').addEventListener('click', function(){ input.click(); });
+  input.addEventListener('change', function(){
+    var files = Array.prototype.slice.call(input.files || []);
+    input.value = '';
+    if(!files.length || !IE) return;
+    var btn = document.getElementById('ieFotoAdd');
+    btn.textContent = '⏳ Procesando…';
+    files.reduce(function(p, f){
+      return p.then(function(){
+        return comprimirFoto(f).then(function(data){
+          if(!IE) return;
+          IE.fotosNuevas.push({ id: idFoto(), infoId: null, data: data, fecha: new Date().toISOString() });
+          if(IE.isNew) IE.dirty = true;
+        });
+      });
+    }, Promise.resolve()).catch(function(err){ alert(err.message); }).then(function(){
+      btn.textContent = '📷 Añadir foto';
+      pintarFotosIE();
+    });
+  });
+  document.getElementById('ieFotos').addEventListener('click', function(ev){
+    var q = ev.target.closest('[data-quitar]');
+    if(q){
+      ev.stopPropagation();
+      var fid = q.getAttribute('data-quitar');
+      var i = IE.fotosNuevas.findIndex(function(f){ return f.id === fid; });
+      if(i !== -1) IE.fotosNuevas.splice(i, 1); else IE.fotosQuitar.push(fid);
+      pintarFotosIE();
+      return;
+    }
+    var t = ev.target.closest('[data-ver]');
+    if(t) abrirVisorFoto(t.querySelector('img').src);
+  });
+  if(it){
+    fotosDe(it.id).then(function(l){ if(IE){ IE.fotosExist = l; pintarFotosIE(); } }).catch(function(){});
+  }
+}
+function pintarFotosIE(){
+  var cont = document.getElementById('ieFotos');
+  if(!cont || !IE) return;
+  var lista = IE.fotosExist.filter(function(f){ return IE.fotosQuitar.indexOf(f.id) === -1; }).concat(IE.fotosNuevas);
+  cont.innerHTML = lista.map(function(f){
+    return '<div class="foto-th" data-ver="1"><img src="' + f.data + '" alt=""><button class="foto-x" data-quitar="' + escapeHtml(f.id) + '" aria-label="Quitar foto">✕</button></div>';
+  }).join('');
+}
+
+// --- Fotos en la vista de lectura ---
+function pintarFotosLectura(infoId){
+  if(!FOTOS_COUNT[infoId]) return;
+  fotosDe(infoId).then(function(l){
+    var cont = document.getElementById('fvFotos');
+    if(!cont) return;
+    cont.innerHTML = l.map(function(f){ return '<div class="foto-th"><img src="' + f.data + '" alt=""></div>'; }).join('');
+    cont.querySelectorAll('img').forEach(function(img){
+      img.addEventListener('click', function(){ abrirVisorFoto(img.src); });
+    });
+  }).catch(function(){});
+}
+function abrirVisorFoto(src){
+  var v = document.createElement('div');
+  v.className = 'foto-visor';
+  v.innerHTML = '<img src="' + src + '" alt=""><button class="foto-visor-x" aria-label="Cerrar">✕</button>';
+  v.addEventListener('click', function(){ v.remove(); });
+  document.body.appendChild(v);
+}
+
+/* ===================== COPIA COMPLETA (.json) ===================== */
+var ULTIMA_COPIA_KEY = 'notasapp_v1_ultima_copia';
+
+function puedeCompartirCopia(){
+  try{
+    return !!(navigator.canShare && navigator.canShare({ files: [new File(['{}'], 'prueba.json', { type: 'application/json' })] }));
+  }catch(e){ return false; }
+}
+
+function avisoCopiaHtml(){
+  var ult = null;
+  try{ ult = localStorage.getItem(ULTIMA_COPIA_KEY); }catch(e){}
+  var hayLocal = Object.keys(NOTAS_PROPIO.notas || {}).length + Object.keys(NOTAS_PROPIO.info || {}).length + Object.keys(FOTOS_COUNT).length > 0;
+  if(!ult){
+    return hayLocal ? ' <span class="aviso-copia">· sin copia</span>' : '';
+  }
+  var dias = Math.floor((Date.now() - new Date(ult).getTime()) / 86400000);
+  return dias >= 7 ? ' <span class="aviso-copia">· sin copia desde hace ' + dias + ' días</span>' : '';
+}
+
+function exportarCopiaCompleta(compartir){
+  fotosTodas().catch(function(){ return []; }).then(function(fotos){
+    var tema = 'dark';
+    try{ tema = localStorage.getItem(THEME_KEY) || 'dark'; }catch(e){}
+    var copia = {
+      app: 'NOTAS', formato: 1, fecha: new Date().toISOString(),
+      libreta: LIBRETA, propio: NOTAS_PROPIO, meta: META,
+      orden: { notas: loadOrder('notas'), info: loadOrder('info') },
+      tema: tema, fotos: fotos || []
+    };
+    var nombre = 'notas_copia_' + todayStamp() + '.json';
+    var blob = new Blob([JSON.stringify(copia)], { type: 'application/json' });
+    var marcarHecha = function(){
+      try{ localStorage.setItem(ULTIMA_COPIA_KEY, new Date().toISOString()); }catch(e){}
+      closeExcelModal();
+      render();
+    };
+    if(compartir && puedeCompartirCopia()){
+      var file = new File([blob], nombre, { type: 'application/json' });
+      navigator.share({ files: [file], title: 'Copia NOTAS' }).then(marcarHecha).catch(function(err){
+        if(err && err.name !== 'AbortError') alert('No se pudo compartir: ' + err.message);
+      });
+    } else {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = nombre;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      marcarHecha();
+    }
+  });
+}
+
+document.getElementById('fileInputCopia').addEventListener('change', function(e){
+  var file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var c;
+    try{ c = JSON.parse(ev.target.result); }catch(err){ alert('El archivo no es una copia válida.'); return; }
+    if(!c || c.app !== 'NOTAS' || !c.propio){ alert('El archivo no es una copia de NOTAS.'); return; }
+    var d = new Date(c.fecha);
+    var fechaTxt = isNaN(d) ? '?' : pad2(d.getDate()) + '/' + pad2(d.getMonth()+1) + '/' + d.getFullYear() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    var nN = Object.keys(c.propio.notas || {}).length, nI = Object.keys(c.propio.info || {}).length, nF = (c.fotos || []).length;
+    if(!confirm('Copia del ' + fechaTxt + '\n' + nN + ' notas propias, ' + nI + ' informaciones propias y ' + nF + ' fotos.\n\nSe SUSTITUIRÁ todo lo que hay ahora en este móvil por esta copia. ¿Continuar?')) return;
+
+    _tx('readwrite', function(st){
+      st.clear();
+      (c.fotos || []).forEach(function(f){ if(f && f.id && f.data) st.put(f); });
+    }).then(function(){
+      LIBRETA = c.libreta || { notas: [], info: [], updated: null };
+      NOTAS_PROPIO = c.propio;
+      if(!NOTAS_PROPIO.notas) NOTAS_PROPIO.notas = {};
+      if(!NOTAS_PROPIO.info) NOTAS_PROPIO.info = {};
+      META = c.meta || {};
+      saveLibreta(); saveNotasPropio(); guardarMeta();
+      if(c.orden){
+        saveOrder('notas', c.orden.notas || []);
+        saveOrder('info', c.orden.info || []);
+      }
+      if(c.tema){ try{ localStorage.setItem(THEME_KEY, c.tema); }catch(e2){} aplicarTema(c.tema); }
+      try{ localStorage.setItem(ULTIMA_COPIA_KEY, c.fecha || new Date().toISOString()); }catch(e3){}
+      STATE.subEntidad = 'Todo'; STATE.subEtiqueta = 'Todas';
+      closeExcelModal();
+      return contarFotos();
+    }).then(function(){
+      render();
+      alert('Copia restaurada.');
+    }).catch(function(err){
+      alert('No se pudo restaurar la copia: ' + err.message);
+    });
+  };
+  reader.readAsText(file);
+});
 
 /* ===================== INIT ===================== */
 try{ aplicarTema(localStorage.getItem(THEME_KEY) === 'light' ? 'light' : 'dark'); }catch(e){}
 cargarDesdeStorage();
 cargarMeta();
 render();
+contarFotos().then(render).catch(function(){});
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ packMosaic(); });
 
 if('serviceWorker' in navigator){
